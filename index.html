@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Recursos Humanos - Panel Unificado</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <h1>Recursos Humanos</h1>
+    </div>
+    <div class="topbar-right">
+      <div id="userArea" class="user">—</div>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+      <button id="btn-toggle-sidebar" class="icon-btn">☰</button>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="user-panel">
+        <div class="avatar" id="sideAvatar">U</div>
+        <div>
+          <div class="name" id="sideName">Usuario</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <h1>Dashboard</h1>
+        <a href="Personal.html" class="nav-item">Personas</a>
+        <a href="#" class="nav-item" data-section="section-sectors">Sectores</a>
+        <a href="Talleres.html" class="nav-item" data-section="section-workshops">Talleres</a>
+        <a href="Organigrama.html" class="nav-item">Organigrama</a>
+        <a href="Entrevistas.html" class="nav-item">Entrevistas</a>
+        <a href="Documentacion.html" class="nav-item">Documentación</a>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section id="section-dashboard" class="content-section">
+        <div class="section-inner">
+          <div class="panel">
+            <h2>Tablero de Control</h2>
+            <div class="summary-row" style="display:flex;gap:12px;margin-top:12px;">
+              <div class="stat-card">
+                <div class="stat-number" id="statPeople">0</div>
+                <div class="muted">Personas</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="statSectors">0</div>
+                <div class="muted">Sectores</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="statWorkshops">0</div>
+                <div class="muted">Talleres</div>
+              </div>
+            </div>
+            <h3 style="margin-top:24px;">Actividad Reciente</h3>
+            <div id="recentList" class="muted" style="max-height: 500px; overflow-y: auto; margin-top: 10px; padding-right: 5px; border: 1px solid #eee; padding: 10px; border-radius: 6px;">
+              Cargando actividad...
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="section-sectors" class="content-section hidden">
+        <div class="section-inner">
+          <div class="panel">
+            <h2>Gestión de Sectores</h2>
+            <p class="muted" style="margin-bottom:15px;">Define las áreas o departamentos de la empresa.</p>
+            
+            <form id="sectorForm" style="display:flex; gap:10px; margin-bottom:20px;">
+              <input type="text" id="sectorNameInput" placeholder="Nombre del nuevo sector..." required style="flex:1;">
+              <button type="submit" class="btn primary">Añadir Sector</button>
+            </form>
+
+            <h3 style="margin-bottom:10px;">Listado de Sectores</h3>
+            <ul id="sectorsListUI" style="list-style:none; padding:0;">
+              <li class="muted">Cargando...</li>
+            </ul>
+          </div>
+        </div>
+      <section id="section-sectors" class="content-section hidden">
+        <div class="section-inner">
+          <div class="panel">
+            <h2>Gestión de Sectores</h2>
+            <p class="muted" style="margin-bottom:15px;">Define las áreas o departamentos de la empresa.</p>
+            
+            <form id="sectorForm" style="display:flex; gap:10px; margin-bottom:20px;">
+              <input type="text" id="sectorNameInput" placeholder="Nombre del nuevo sector..." required style="flex:1;">
+              <button type="submit" class="btn primary">Añadir Sector</button>
+            </form>
+
+            <h3 style="margin-bottom:10px;">Listado de Sectores</h3>
+            <ul id="sectorsListUI" style="list-style:none; padding:0;">
+              <li class="muted">Cargando...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+<script src="Script/backlog.js"></script>
+<script src="Script/auth.js"></script>
+<script src="Script/sectors.js"></script>
+<script src="Script/people.js"></script>
+<script src="Script/workshops.js"></script>
+<script src="Script/ui.js"></script>
+<script src="Script/app.js"></script>
+</script>
+</body>
+</html>

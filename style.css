@@ -1,0 +1,445 @@
+:root{
+  --brand-blue: #0b4aa6;
+  --dark-sidebar: #263238;
+  --muted: #6b7280;
+  --card-bg: #ffffff;
+  --panel-bg: #f3f3f4;
+  --accent: #0e8f6f;
+  --danger: #d9534f;
+  --rounded: 8px;
+  --shadow: 0 6px 18px rgba(11,74,166,0.06);
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+*{box-sizing:border-box}
+body,html{height:100%;margin:0;background:#efefef;color:#1f2937}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background: linear-gradient(90deg, var(--brand-blue), #083a82);
+  color:white;
+  padding:10px 20px;
+  box-shadow: 0 6px 20px rgba(11,74,166,0.08);
+}
+
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo-placeholder{
+  width:44px;height:44px;border-radius:6px;background:#083a82;display:flex;align-items:center;justify-content:center;font-weight:700;
+}
+.topbar h1{font-size:20px;margin:0;font-weight:600}
+
+.topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+.topbar-right a.btn, .topbar-right .btn{white-space:nowrap;min-width:0}
+.icon-btn{background:transparent;border:0;color:white;font-size:18px;cursor:pointer;min-width:0}
+.user{opacity:0.95;font-size:14px}
+
+/* Controls responsive behavior so buttons never overflow */
+.controls{margin-bottom:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{min-width:0}
+
+@media (max-width:720px){
+  .topbar-right{gap:8px}
+  .topbar-right a.btn, .topbar-right .btn{padding:6px 8px;font-size:13px}
+  .controls{justify-content:flex-start}
+}
+
+.app{display:flex;height:calc(100vh - 64px)}
+.sidebar{
+  width:260px;background:var(--dark-sidebar);color:white;padding:18px 12px;min-height:calc(100vh - 64px)
+}
+.user-panel{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+.user-panel .avatar{width:44px;height:44px;border-radius:8px;background:#0b4aa6;display:flex;align-items:center;justify-content:center;font-weight:700}
+.user-panel .name{font-weight:700}
+.user-panel .role{font-size:12px;color:#9aa5ad}
+
+.nav .nav-item{display:block;padding:12px;border-radius:6px;color:#cfe3ff;text-decoration:none;margin-bottom:6px;cursor:pointer}
+.nav .nav-item.active{background:#162f3b;color:white}
+
+.content{flex:1;padding:18px;overflow:auto}
+.controls{margin-bottom:12px}
+.search-row{display:flex;gap:8px;align-items:center}
+.search-row input, .search-row select{padding:10px;border-radius:6px;border:1px solid #dcdcdc;flex:1}
+.search-row button{padding:10px 14px;border-radius:6px;border:1px solid #cfcfcf;background:white;cursor:pointer}
+
+.panel-grid{display:grid;grid-template-columns:360px 1fr;gap:16px}
+.panel{background:var(--card-bg);padding:16px;border-radius:10px;box-shadow:var(--shadow)}
+.form-panel h2, .list-panel h2{margin-top:0}
+
+label{display:block;margin-bottom:8px;font-size:14px;color:#25303a}
+label input, label textarea, label select{width:100%;padding:10px;border-radius:6px;border:1px solid #e0e0e0;margin-top:6px}
+.row{display:flex;gap:8px}
+.file-label input{display:block}
+
+.form-actions{display:flex;gap:8px;margin-top:12px}
+.btn{padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:white;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,74,166,0.06)}
+.btn.primary{background:linear-gradient(90deg,var(--brand-blue),#0e73c6);color:white;border:0;box-shadow:0 6px 16px rgba(11,74,166,0.08)}
+.btn.danger{background:var(--danger);color:white;border:0}
+
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.panel h2{margin:0 0 8px 0}
+.panel .muted{font-size:13px}
+
+
+.sector-form{display:flex;gap:8px;margin-top:8px}
+.sectors-list{list-style:none;padding:0;margin-top:8px}
+.sectors-list li{display:flex;justify-content:space-between;padding:8px;border-radius:6px;background:#f7f9fa;margin-bottom:6px;border:1px solid #e7eaec}
+.sectors-list button{background:transparent;border:0;color:#d23f3f;cursor:pointer}
+
+.people-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.person-card{background:#fff;border-radius:8px;padding:12px;border-left:6px solid var(--brand-blue);box-shadow:0 4px 12px rgba(0,0,0,0.04);cursor:pointer;display:flex;flex-direction:column;gap:8px}
+.person-card .head{display:flex;align-items:center;gap:8px}
+.person-card .avatar{width:44px;height:44px;border-radius:50%;background:#e6eefb;display:flex;align-items:center;justify-content:center;font-weight:700;color:#083a82}
+.person-card .muted{color:var(--muted);font-size:13px}
+.person-card small{color:var(--muted);font-size:12px}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  align-items: center; /* mantener centrado */
+  z-index: 99999; /* asegurar que el modal esté por encima del calendario */
+}
+.modal.hidden{display:none}
+.modal-content{
+  background:white;
+  border-radius:10px;
+  width:720px;
+  max-width:100%;
+  padding:18px;
+  position:relative;
+  z-index: 100000; /* contenido del modal por encima del overlay y elementos de calendario */
+  max-height: calc(100vh - 120px);  /* limita la altura visible */
+  overflow-y: auto;                 /* habilita scroll interno */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;             /* espacio para el scroll */
+}
+
+/* Forzar que FullCalendar no use z-index alto por defecto que solape modales */
+.fc {
+  z-index: 0 !important;
+}
+
+.modal-close{position:absolute;right:12px;top:8px;border:0;background:transparent;font-size:18px;cursor:pointer}
+.detail-header{display:flex;gap:12px;align-items:center}
+.detail-avatar{width:72px;height:72px;border-radius:8px;background:#e9f2ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#083a82}
+.muted{color:var(--muted)}
+.notes-box{background:#f7f9fa;border-radius:6px;padding:10px;border:1px solid #eef0f2}
+
+.files-section .file-item{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px;border-radius:6px;background:#fafafa;margin-bottom:6px;border:1px solid #ececec}
+.files-section a{color:var(--brand-blue);text-decoration:none}
+
+/* --- login page --- */
+.login-page { display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(180deg,#0b4aa6 0%, #083a82 100%);color:white;font-family:Segoe UI, Roboto, Arial; }
+.login-panel { background:white;color:#25303a;padding:28px;border-radius:10px;min-width:320px;max-width:420px;box-shadow:0 12px 40px rgba(0,0,0,0.18); }
+.login-panel h1{margin-top:0}
+.logo-big{background:#083a82;color:white;padding:8px 12px;border-radius:6px;margin-bottom:12px;display:inline-block;font-weight:700}
+.login-panel label{display:block;margin-bottom:8px;font-size:14px}
+.login-panel input, .login-panel textarea, .login-panel select{width:100%;padding:8px;border-radius:6px;border:1px solid #e2e2e2;margin-top:6px}
+.login-panel .form-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.login-panel .hidden{display:none}
+
+.card.stat{background:#fff;padding:12px;border-radius:8px;min-width:110px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.stat-number{font-size:20px;font-weight:700;color:var(--brand-blue)}
+
+/* small responsive helpers */
+@media (max-width:720px){
+  .app{flex-direction:column}
+  .sidebar{display:none}
+  .panel-grid{grid-template-columns:1fr}
+}
+
+@media (max-width:900px){
+  .panel-grid{grid-template-columns:1fr}
+  .sidebar{display:none}
+}
+
+.logo-img{
+  width:44px;
+  height:44px;
+  border-radius:6px;
+  object-fit:contain;
+  background:white;
+  padding:4px;
+  display:inline-block;
+}
+
+.summary-row{display:flex;gap:12px;margin:14px 0}
+.stat-card{background:#fff;padding:12px;border-radius:8px;box-shadow:var(--shadow);min-width:110px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+
+/* --- Dashboard polish --- */
+#section-dashboard .summary-row { justify-content: flex-start; align-items: center; gap:18px; }
+.stat-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
+.stat-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(11,74,166,0.08); }
+
+.panel { transition: transform .12s ease, box-shadow .12s ease; }
+.panel:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(11,74,166,0.06); }
+
+.nav .nav-item { transition: background .12s ease, transform .12s ease; }
+.nav .nav-item:hover { background: rgba(255,255,255,0.04); transform: translateX(4px); }
+
+.content-section { padding: 10px 0; }
+.section-inner { max-width: 1200px; margin: 0 auto; padding: 0 12px; }
+
+.hidden{display:none}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.avatar-mini{width:48px;height:48px;border-radius:6px;background:#e9f2ff;display:flex;align-items:center;justify-content:center;font-weight:700;color:#083a82;background-size:cover;background-position:center}
+
+body.modal-open{ overflow: hidden; }
+
+/* --- Layout General --- */
+.workshop-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Side panel for workshop details */
+#sidePanel { display:flex; flex-direction:column; gap:10px; }
+.workshop-side-content { overflow:auto; max-height: calc(100vh - 210px); padding-right:8px; }
+.workshop-side-content h4{margin:8px 0}
+.workshop-side-content ul{list-style:none;padding:0;margin:6px 0}
+.workshop-side-content li{padding:6px 8px;border-radius:6px;background:#fafafa;border:1px solid #f0f0f0;margin-bottom:6px}
+.workshop-side-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.workshop-side-actions .btn { padding:6px 10px; font-size:13px }
+.btn.small{padding:6px 8px;font-size:12px}
+
+/* Fix: prevent action buttons from overflowing in narrow side panel */
+#sidePanel .panel { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px; box-sizing:border-box; }
+#sidePanel .panel > div:first-child { flex:1 1 auto; min-width:0; overflow:hidden; }
+#sidePanel .panel > div:first-child strong { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#sidePanel .panel > div:last-child { display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:flex-end; min-width:0; }
+#sidePanel .panel > div:last-child .btn { padding:6px 8px; font-size:12px; white-space:nowrap; }
+#sidePanel .panel > div:last-child .btn.danger { padding:6px 8px }
+#sidePanel .panel > div:last-child .btn.invisible { display:none }
+
+/* small responsive */
+@media (max-width:900px){ #sidePanel{display:none} }
+
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* --- Calendario Limpio --- */
+#calendar {
+    padding: 10px;
+    background: #fff;
+    min-height: 500px;
+}
+
+.workshop-cards-grid {
+    display: grid;
+    gap: 12px;
+}
+
+/* --- Refactor del Informe (Report Grid) --- */
+.report-main-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 24px;
+    padding-top: 15px;
+}
+
+.report-section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--panel-bg);
+    margin-bottom: 12px;
+    padding-bottom: 5px;
+}
+
+/* Estilo Bitácora */
+.log-card {
+    border-left: 4px solid var(--brand-blue);
+    background: #f9f9f9;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.log-card.featured { border-left-color: #f1c40f; }
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+
+/* Estilo Documentos */
+.doc-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 8px 12px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+/* --- Helper Classes --- */
+.wide-modal { width: 1000px; }
+.small-modal { width: 450px; }
+.standard-form label { margin-bottom: 15px; }
+.checklist-container { max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
+
+.weekday-selector {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+.days-grid { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+@media (max-width: 1024px) {
+    .workshop-layout { grid-template-columns: 1fr; }
+}
+/* Estado normal de la sidebar */
+.sidebar {
+    width: 260px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* Clase que aplicaremos con JS para esconderla */
+.sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none; /* Evita clics mientras está oculta */
+}
+
+/* Ajuste automático del contenido */
+.content {
+    transition: all 0.3s ease;
+}
+
+/* Organigrama: eliminar fondo cuadriculado del chart container y asegurar fondo blanco limpio */
+#chart-container, .orgchart {
+    background-image: none !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Si querés el lienzo blanco sin cuadricula, descomenta la siguiente regla */
+/* #chart-container { background: #ffffff !important; } */
+
+/* Asegurar que el chart se centre dentro del contenedor */
+#chart-container { display:block; text-align:center; overflow:auto; }
+.orgchart { display:inline-block; }
+
+/* --- OrgChart Hover Effects: enlarge whole node (avatar + text) --- */
+.orgchart .node { transition: transform .18s ease, box-shadow .18s ease; position: relative; z-index:1; cursor:default; transform-origin: center top; }
+.orgchart .node:hover { transform: translateY(-8px) scale(1.16); z-index: 9999; box-shadow: 0 20px 44px rgba(0,0,0,0.16); cursor:pointer; }
+
+/* Avatar scales slightly in concert with the node so text also enlarges visibly */
+.orgchart .node .chart-avatar, .orgchart .node .chart-avatar-placeholder { transition: transform .18s ease, box-shadow .18s ease; transform-origin: center center; display:flex; align-items:center; justify-content:center; }
+.orgchart .node:hover .chart-avatar, .orgchart .node:hover .chart-avatar-placeholder { transform: scale(1.12); box-shadow: 0 10px 30px rgba(0,0,0,0.14); }
+
+/* Ensure title and content also appear larger when scaled (smooth) */
+.orgchart .node .title, .orgchart .node .content { transition: inherit; }
+
+.orgchart .node .title {
+    box-sizing: border-box;
+    padding: 2px;
+    width: 130px;
+    text-align: center;
+    font-size: .75rem;
+    font-weight: 700;
+    height: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Fondo azul de la marca */
+    background-color: var(--brand-blue, #0b4aa6) !important;
+    background-image: none !important;
+    color: #fff !important;
+    border-radius: 4px 4px 0 0;
+    /* Aseguramos borde sólido azul, no punteado */
+    border: 1px solid var(--brand-blue, #0b4aa6) !important;
+}
+
+/* 1. Definición de color */
+:root {
+    --brand-blue: #0b4aa6;
+}
+
+/* 2. Corrigiendo el error: La línea desapareció porque faltaba el estilo 'solid' 
+   y el borde izquierdo para la parte vertical del conector 
+.orgchart .hierarchy::before {
+    content: "";
+    border-top: 1px solid var(--brand-blue) !important;  /* Línea horizontal 
+    border-left: 2px solid var(--brand-blue) !important; /* Línea vertical (la que faltaba) 
+    border-style: solid !important;
+    border-color: var(--brand-blue) !important;
+}
+
+/* 3. Eliminar la LÍNEA ROJA (suele ser el verticalLine o el conector del nodo activo) 
+.orgchart .verticalLine,
+.orgchart .node::after,
+.orgchart .node::before {
+    background-color: var(--brand-blue) !important;
+    border-color: var(--brand-blue) !important;
+}
+
+/* 4. Dibujar la línea que falta debajo de Alejandro */
+/* Forzamos el conector que sale del nodo hacia los hijos verticales 
+.orgchart .node.vertical-nodes::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -11px;
+    left: 50%;
+    width: 2px !important;
+    height: 11px !important;
+    background-color: var(--brand-blue) !important;
+}
+
+/* 5. Asegurar que la línea vertical larga de la izquierda sea azul 
+.orgchart .nodes.vertical::before {
+    background-color: var(--brand-blue) !important;
+    border-color: var(--brand-blue) !important;
+}
+
+/* 6. Conectores específicos de los hijos en modo vertical 
+.orgchart .nodes.vertical .hierarchy::before,
+.orgchart .nodes.vertical .hierarchy::after {
+    border-color: var(--brand-blue) !important;
+    border-width: 0 0 2px 2px !important; /* Mantiene la forma de codo 
+    background-color: transparent !important;
+}
+*/
+.orgchart .node .content {
+    border: 1px solid var(--brand-blue) !important;
+}
+
+/* Clase para resaltar el camino */
+.path-highlight {
+    background-color: #f1c40f !important; /* Amarillo/Dorado */
+    border: 2px solid #e67e22 !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    transform: scale(1.05); /* Un pequeño zoom */
+    transition: all 0.3s ease;
+}
+
+/* Opcional: Atenuar a los que NO son parte del camino (para destacar más) */
+.dimmed {
+    opacity: 0.3;
+}

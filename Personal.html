@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Personal - Recursos Humanos</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <h1>Personal</h1><!-- Título de la página -->
+    </div>
+    <div class="topbar-right"><!-- Botones de navegación -->
+      <a class="btn" href="index.html">Volver</a>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+    </div>
+  </header>
+
+  <main class="content" style="padding:18px;">
+    <section class="panel-grid">
+      <div class="panel form-panel">
+        <h2>Carga de Personal</h2> <!-- Formulario de carga y edición de personal -->
+        <form id="personForm">
+          <input type="hidden" id="personId">
+          <h4>1. Datos Personales y de Contacto</h4>
+          <label>Nombre completo <input id="fullName" required/></label>
+          <label>CUIL/CUIT <input id="cuil" placeholder="XX-XXXXXXXX-X" /></label>
+          <label>Fecha de nacimiento <input id="birthDate" type="date" /></label>
+          <label>Domicilio real <input id="address" /></label>
+          <label>Estado civil 
+            <select id="maritalStatus">
+              <option value="">Seleccione</option>
+              <option>Soltero/a</option><option>Casado/a</option><option>Concubinato</option><option>Otro</option>
+            </select>
+          </label>
+          <label>Contacto de emergencia <input id="emergencyContact" /></label>
+          
+          <h4>2. Laboral</h4>
+          <label>Nro. de legajo <input id="legajo" /></label>
+          <label>Categoría <input id="categoria" /></label>
+          <label>Rol <input id="rol" /></label>
+          <label>Área <input id="area" /></label>
+          <label>Coordinador <input id="coordinador" /></label>
+          <label>ID Jerarquía (Propio)<input id="personJerId" placeholder="Ej: 101" required/></label>
+          <label>ID Superior (Parent)<input id="parent" placeholder="ID de su jefe (vacío si es CEO)"/></label>
+          <label>Dir. oficina <input id="direccionOficina" /></label>
+
+          <h4>3. Grupo Familiar</h4>
+          <label>Cónyuge <input id="spouseInfo" /></label>
+          <label>Hijos <textarea id="childrenInfo" rows="2"></textarea></label>
+
+          <h4>4. Laboral y Académica</h4>
+          <label>Sector <select id="personSector" required><option value="">Seleccione...</option></select></label>
+          <label>Fecha de ingreso <input id="dateIn" type="date" /></label>
+          <label>Fecha de baja <input id="dateOut" type="date" /></label>
+
+          <h4>5. Pago de Haberes</h4>
+          <label>CBU <input id="cbu" /></label>
+          <label>Obra social <input id="obraSocial" /></label>
+          <label>Observaciones <textarea id="taxInfo" rows="1"></textarea></label>
+
+          <label>Foto <input id="photoInput" type="file" accept="image/*" /></label>
+
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Guardar</button>
+            <button type="button" id="btnReset" class="btn">Nuevo</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel list-panel">
+        <h2>Personas</h2> <!-- Lista y búsqueda de personal -->
+        <div class="search-row">
+          <input id="searchInput" placeholder="Buscar..." />
+          <select id="filterSector"><option value="">Todos los sectores</option></select>
+          <button id="btnClear" class="btn">Limpiar</button>
+        </div>
+        <div id="peopleContainer" class="people-container" style="margin-top:12px;"></div> <!-- Contenedor para la lista de personas -->
+      </div>
+    </section>
+  </main>
+
+  <div id="detailModal" class="modal hidden"> <!-- Modal de detalles de persona -->
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="detail-header">
+        <div class="detail-avatar" id="detailAvatar"></div>
+        <div>
+          <h3 id="detailName">Nombre</h3>
+          <div id="detailSector" class="muted">Sector</div>
+        </div>
+      </div>
+      <div class="detail-body">
+        <h4>Datos personales</h4>
+        <div id="detailPersonal" class="notes-box"></div>
+        <h4>Grupo familiar</h4>
+        <div id="detailFamily" class="notes-box"></div>
+        <h4>Datos laborales / pago</h4>
+        <div id="detailDocs" class="notes-box"></div>
+      </div>
+      <div class="modal-actions"><!-- Botones de acción en el modal -->
+        <button id="editFromModal" class="btn">Editar</button>
+        <button id="deleteFromModal" class="btn danger">Eliminar</button>
+        <button id="closeModalBottom" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="Script/backlog.js"></script>
+  <script src="Script/sectors.js"></script>
+  <script src="Script/people.js"></script>
+  <script src="Script/auth.js"></script>
+</body>
+</html>

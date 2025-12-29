@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Talleres - Recursos Humanos</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <h1>Talleres</h1>
+    </div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">Volver al panel</a>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+    </div>
+  </header>
+
+  <main class="content" style="padding:24px;">
+    <section class="panel-grid" style="grid-template-columns:1fr 360px; gap:16px;">
+      
+      <div class="panel">
+        <h2>Talleres</h2>
+        <div class="controls" style="margin-bottom:12px;">
+          <button id="btnNewWorkshop" class="btn primary">Nuevo taller</button>
+        </div>
+        <div id="calendar" style="margin-bottom:12px;"></div>
+      </div>
+      <!-- Panel derecho: lista de talleres y detalle -->
+      <div class="panel" id="sidePanel" style="min-height:200px;">
+        <h3>Talleres</h3>
+        <div id="workshopList" style="display:grid;gap:12px;"></div>
+        <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
+      </div>    </section>
+  </main>
+
+  <div id="assignModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="assignClose">✕</button>
+      <h3>Asignar personal</h3>
+      
+      <div style="display:flex; gap:8px; margin:10px 0;">
+          <input type="text" id="searchAssign" placeholder="Buscar nombre..." style="flex:1;">
+          <select id="filterSectorAssign">
+              <option value="">Sectores...</option>
+          </select>
+      </div>
+
+      <div id="assignList" style="max-height:300px; overflow:auto; border:1px solid #eee;"></div>
+      
+      <div class="form-actions" style="margin-top:12px;">
+        <button id="assignSave" class="btn primary">Guardar asignación</button>
+        <button id="assignCancel" class="btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para mostrar informe detallado del taller -->
+  <div id="reportModal" class="modal hidden">
+    <div class="modal-content" style="max-width:900px; width:calc(100% - 40px);">
+      <button class="modal-close" id="reportClose">✕</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;">
+        <h3 id="reportTitle">Informe</h3>
+        <div>
+          <button id="reportPrint" class="btn">Imprimir</button>
+          <button id="reportDownload" class="btn">Descargar .doc</button>
+        </div>
+      </div>
+      <div id="reportBody" style="max-height:70vh;overflow:auto;padding-right:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Modal para crear/editar taller -->
+  <div id="workshopModal" class="modal hidden">
+    <div class="modal-content" style="max-width:700px; width:calc(100% - 40px);">
+      <button class="modal-close" id="workshopClose">✕</button>
+      <h3 id="workshopModalTitle">Nuevo taller</h3>
+      <form id="workshopFormModal">
+        <input type="hidden" id="workshopId">
+        <label>Nombre <input id="workshopNameModal" required /></label>
+        <label>Instructor <input id="workshopInstructorModal" /></label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <label style="margin-right:8px">Dias repetición:</label>
+          <label><input type="checkbox" name="weekday" value="1"> Lun</label>
+          <label><input type="checkbox" name="weekday" value="2"> Mar</label>
+          <label><input type="checkbox" name="weekday" value="3"> Mie</label>
+          <label><input type="checkbox" name="weekday" value="4"> Jue</label>
+          <label><input type="checkbox" name="weekday" value="5"> Vie</label>
+          <label><input type="checkbox" name="weekday" value="6"> Sab</label>
+          <label><input type="checkbox" name="weekday" value="0"> Dom</label>
+        </div>
+        <label>Inicio <input id="workshopStartModal" placeholder="YYYY-MM-DD HH:mm" /></label>
+        <label>Fin <input id="workshopEndModal" placeholder="YYYY-MM-DD HH:mm" /></label>
+        <label>Descripción <textarea id="workshopDescModal" rows="3"></textarea></label>
+        <div class="form-actions">
+          <button id="workshopSave" class="btn primary" type="submit">Guardar</button>
+          <button type="button" id="workshopCancel" class="btn">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="Script/backlog.js"></script>
+  <script src="Script/auth.js"></script>
+  <script src="Script/sectors.js"></script>
+  <script src="Script/people.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="Script/workshops.js"></script>
+</body>
+</html>

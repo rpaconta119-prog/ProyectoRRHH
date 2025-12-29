@@ -1,0 +1,44 @@
+<html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Organigrama - Recursos Humanos</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/orgchart/3.1.1/css/jquery.orgchart.min.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <h1>Organigrama</h1><!-- Título de la página -->
+    </div>
+    <div class="topbar-right"><!-- Botones de navegación -->
+      <a class="btn" href="index.html">Volver</a>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <!-- Contenido del organigrama -->
+     <div>
+        <h2>Organigrama de la Empresa</h2>
+        <div class="search-container" style="text-align: center; margin-bottom: 20px;">
+        <input type="text" id="key-word" placeholder="Buscar empleado..." style="padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ccc;">
+        <button id="btn-search" class="btn" style="background-color: #3498db; color: white;">Buscar</button>
+        <button id="btn-clear" class="btn" style="background-color: #95a5a6; color: white;">Limpiar</button>
+        </div>
+        <div id="chart-container" style="overflow: auto; text-align: center;">
+
+        </div>
+     </div>
+  </main>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/orgchart/3.1.1/js/jquery.orgchart.min.js"></script>
+  <script src="Script/Organigrama.js"></script>
+  <script src="Script/auth.js"></script>
+  
+
+</body>
+</html>

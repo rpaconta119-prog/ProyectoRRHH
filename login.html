@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Recursos Humanos</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-page">
+  <main class="login-panel">
+    <img src="Assets/LOGO.png" alt="Logo" class="logo-big logo-img" onerror="this.style.display='none'"/>
+    <h1>Iniciar sesión</h1>
+
+    <form id="loginForm"> <!-- Formulario de login -->
+      <label>Usuario (email o nombre)
+        <input id="loginUser" required placeholder="ej. ana" />
+      </label>
+      <label>Contraseña
+        <input id="loginPass" type="password" required />
+      </label>
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Entrar</button>
+        <button type="button" id="btnGoCreate" class="btn">Crear cuenta</button>
+      </div>
+    </form>
+
+    <form id="createForm" class="hidden"> <!-- Formulario de creación de cuenta -->
+      <h3>Crear cuenta</h3>
+      <label>Nombre para mostrar
+        <input id="createDisplay" required />
+      </label>
+      <label>Usuario (email o nombre)
+        <input id="createUser" required />
+      </label>
+      <label>Contraseña
+        <input id="createPass" type="password" required />
+      </label>
+      <div class="form-actions">
+        <button class="btn primary" id="btnCreate" type="submit">Crear y entrar</button>
+        <button type="button" id="btnBackLogin" class="btn">Volver</button>
+      </div>
+    </form>
+
+    <p class="muted small">Esta demo guarda usuarios en localStorage. No es producción.</p>
+  </main>
+
+  <script src="Script/auth.js"></script>
+</body>
+</html>
