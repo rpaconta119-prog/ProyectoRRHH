@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generar Acta - Recursos Humanos</title>
+  <link rel="stylesheet" href="styles/Actas.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <h1>Actas Administrativas</h1>
+    </div>
+    <div class="topbar-right">
+      <a class="btn" href="index.html">Volver</a>
+    </div>
+  </header>
+
+  <div class="main-container">
+    
+    <aside class="controls-panel">
+      <h2>Datos del Acta</h2>
+      
+      <div class="form-group">
+        <label for="selPerson">Seleccionar Empleado</label>
+        <select id="selPerson">
+          <option value="">-- Cargando... --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="inputDate">Fecha del suceso</label>
+        <input type="date" id="inputDate">
+      </div>
+
+      <div class="form-group">
+        <label for="inputType">Tipo de Sanción</label>
+        <select id="inputType">
+          <option value="Llamado de Atención">Llamado de Atención</option>
+          <option value="Apercibimiento">Apercibimiento</option>
+          <option value="Suspensión">Suspensión</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="inputReason">Descripción de los hechos</label>
+        <textarea id="inputReason" placeholder="Describa detalladamente el motivo de la sanción..."></textarea>
+        <small style="color: #666;">El sistema ajustará el texto automáticamente.</small>
+      </div>
+
+      <div class="separator"></div>
+
+      <button id="btnSave" class="btn-primary">GENERAR Y GUARDAR PDF</button>
+    </aside>
+
+    <main class="preview-panel">
+      <div class="a4-paper" id="printableArea">
+        
+        <div class="acta-header">
+          <img src="Assets/LOGO.png" alt="Logo Municipal" class="paper-logo" onerror="this.style.visibility='hidden'">
+          <h3>MUNICIPALIDAD / RRHH</h3>
+          <div class="acta-title" id="viewTitle">LLAMADO DE ATENCIÓN</div>
+        </div>
+
+        <div class="acta-body">
+          <p>
+            En la ciudad, a los <strong id="viewDate">___</strong> días del mes, 
+            se procede a notificar al agente:
+          </p>
+          <p style="margin-left: 20px;">
+            Nombre: <strong id="viewName">__________________</strong><br>
+            Legajo/ID: <strong id="viewId">___</strong>
+          </p>
+          
+          <p class="section-title">MOTIVO / DESCRIPCIÓN:</p>
+          <div id="viewReason" class="reason-text">
+            (El texto ingresado aparecerá aquí...)
+          </div>
+
+          <p class="legal-text">
+            Queda usted debidamente notificado/a, firmando al pie de la presente para constancia de recepción. Se adjuntará copia a su legajo personal.
+          </p>
+        </div>
+
+        <div class="acta-footer">
+          
+          <div class="sign-box">
+            <img src="Assets/firma_oficial.png" class="static-signature-img" alt="Firma Autoridad" onerror="this.style.display='none'">
+            <div class="line"></div>
+            <p>Firma Autoridad Competente</p>
+            <small>Recursos Humanos</small>
+          </div>
+          
+          <div class="sign-box right-box">
+            <div style="height: 60px;"></div> 
+            <div class="line"></div>
+            <p>Firma del Agente (Recepción)</p>
+            <small id="viewSignName">Aclaración</small>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="Script/Actas.js"></script>
+</body>
+</html>
