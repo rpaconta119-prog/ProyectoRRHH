@@ -25,7 +25,7 @@ $(function() {
                 // Guardamos el ID explícitamente para uso interno
                 id: item.personJerId, 
                 name: item.name, 
-                title: item.rol || item.categoria || 'Sin cargo',
+                title: item.categoria || 'Sin cargo',
                 children: [] 
             };
         });

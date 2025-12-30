@@ -13,7 +13,7 @@ const PREDEFINED_ICONS = [
     { icon: '🐧', label: 'Pingüino' }, { icon: '🛡️', label: 'Escudo' }
 ];
 
-const STAT_KEYS = ['Liderazgo', 'Comunicación', 'Trabajo en Equipo', 'Resolución', 'Puntualidad'];
+const STAT_KEYS = ['ADAPTABILIDAD', 'AUTOCONTROL EMOCIONAL', 'TRABAJO EN EQUIPO', 'RESOLUCIÓN', 'LIDERAZGO'];
 
 // ==========================================
 // 2. MÓDULO PRINCIPAL (CRUD)
@@ -138,6 +138,9 @@ window.fillForm = function(p) {
     window.scrollTo({top: 0, behavior: 'smooth'});
 };
 
+// ==========================================
+// FUNCIÓN VIEW PERSON (ACTUALIZADA CON CAMPOS EXTRA)
+// ==========================================
 window.viewPerson = function(id) {
     const p = people.find(x => x.id === id);
     if (!p) return;
@@ -160,36 +163,73 @@ window.viewPerson = function(id) {
     avatar.style.backgroundImage = p.photoData ? `url(${p.photoData})` : 'none';
     avatar.textContent = p.photoData ? '' : (p.name ? p.name.charAt(0) : '');
 
-    // Render Body Tabs
+    // --- PESTAÑA 1: DATOS PERSONALES (Expandida) ---
     document.getElementById('detailPersonal').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div><label class="lbl-mini">CUIL</label><input class="full-w" id="mod_cuil" value="${p.cuil || ''}"></div>
+            <div><label class="lbl-mini">CUIL/DNI</label><input class="full-w" id="mod_cuil" value="${p.cuil || ''}"></div>
             <div><label class="lbl-mini">Nacimiento</label><input type="date" class="full-w" id="mod_birthDate" value="${p.birthDate || ''}"></div>
+            <div><label class="lbl-mini">Nacionalidad</label><input class="full-w" id="mod_nacionalidad" value="${p.nacionalidad || ''}" placeholder="Ej: Argentina"></div>
             <div><label class="lbl-mini">Estado Civil</label><input class="full-w" id="mod_maritalStatus" value="${p.maritalStatus || ''}"></div>
-            <div><label class="lbl-mini">Domicilio</label><input class="full-w" id="mod_address" value="${p.address || ''}"></div>
+            
+            <div style="grid-column: span 2;"><label class="lbl-mini">Domicilio</label><input class="full-w" id="mod_address" value="${p.address || ''}"></div>
+            
+            <div style="grid-column: span 2;">
+                <label class="lbl-mini">🎓 Estudios / Título</label>
+                <textarea class="full-w" id="mod_estudios" rows="2" placeholder="Ej: Abogacía - UNNE">${p.estudios || ''}</textarea>
+            </div>
+            <div style="grid-column: span 2;">
+                <label class="lbl-mini">Experiencia Laboral</label>
+                <textarea class="full-w" id="mod_experienciaLaboral" rows="2" placeholder="ESTUDIO JURÍDICO EN POSADAS , MISIONES (2020)">${p.experienciaLaboral || ''}</textarea>
+            </div>
+
             <div style="grid-column: span 2;"><label class="lbl-mini">Contacto Emergencia</label><input class="full-w" id="mod_emergencyContact" value="${p.emergencyContact || ''}"></div>
             <div style="grid-column: span 2;"><label class="lbl-mini">Dirección Oficina</label><input class="full-w" id="mod_direccionOficina" value="${p.direccionOficina || ''}"></div>
         </div>`;
 
+    // --- PESTAÑA 2: FAMILIA ---
     document.getElementById('detailFamily').innerHTML = `
         <div style="margin-bottom:10px;"><label class="lbl-mini">Cónyuge</label><input class="full-w" id="mod_spouseInfo" value="${p.spouseInfo || ''}"></div>
         <div><label class="lbl-mini">Hijos/Dependientes</label><textarea class="full-w" rows="2" id="mod_childrenInfo">${p.childrenInfo || ''}</textarea></div>`;
 
     const parentHTML = getParentOptionsHTML(p.parent, p.id);
 
+    // --- PESTAÑA 3: DATOS LABORALES (Expandida con Misión y Competencias) ---
     document.getElementById('detailDocs').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
             <div><label class="lbl-mini">Legajo</label><input class="full-w" id="mod_legajo" value="${p.legajo || ''}"></div>
             <div><label class="lbl-mini">Categoría</label><input class="full-w" id="mod_categoria" value="${p.categoria || ''}"></div>
-            <div><label class="lbl-mini">Rol</label><input class="full-w" id="mod_rol" value="${p.rol || ''}"></div>
+            <div style="grid-column: span 2;"><label class="lbl-mini">Rol / Puesto</label><input class="full-w" id="mod_rol" value="${p.rol || ''}"></div>
+            
             <div><label class="lbl-mini">Área</label><input class="full-w" id="mod_area" value="${p.area || ''}"></div>
             <div><label class="lbl-mini">Coordinador</label><input class="full-w" id="mod_coordinador" value="${p.coordinador || ''}"></div>
             
-            <div><label class="lbl-mini">Ingreso</label><input type="date" class="full-w" id="mod_dateIn" value="${p.dateIn || ''}"></div>
-            <div><label class="lbl-mini">Egreso</label><input type="date" class="full-w" id="mod_dateOut" value="${p.dateOut || ''}"></div>
-            <div><label class="lbl-mini">CBU</label><input class="full-w" id="mod_cbu" value="${p.cbu || ''}"></div>
-            <div><label class="lbl-mini">Obra Social</label><input class="full-w" id="mod_obraSocial" value="${p.obraSocial || ''}"></div>
-            <div style="grid-column: span 2;"><label class="lbl-mini">Info Fiscal</label><input class="full-w" id="mod_taxInfo" value="${p.taxInfo || ''}"></div>
+            <div style="grid-column: span 2; margin-top:5px;">
+                <label class="lbl-mini" style="font-weight:bold; color:#555;">🎯 Misión del Puesto</label>
+                <textarea class="full-w" rows="2" id="mod_mision" placeholder="Propósito principal del cargo...">${p.mision || ''}</textarea>
+            </div>
+            <div style="grid-column: span 2;">
+                <label class="lbl-mini" style="font-weight:bold; color:#555;">📋 Responsabilidades Clave</label>
+                <textarea class="full-w" rows="3" id="mod_responsabilidades" placeholder="- Tarea 1\n- Tarea 2...">${p.responsabilidades || ''}</textarea>
+            </div>
+
+            <div style="grid-column: span 2; display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:5px;">
+                <div>
+                    <label class="lbl-mini" style="font-weight:bold;">Competencias Técnicas</label>
+                    <textarea class="full-w" rows="2" id="mod_compTecnicas">${p.compTecnicas || ''}</textarea>
+                </div>
+                <div>
+                    <label class="lbl-mini" style="font-weight:bold;">Competencias Conductuales</label>
+                    <textarea class="full-w" rows="2" id="mod_compConductuales">${p.compConductuales || ''}</textarea>
+                </div>
+            </div>
+            
+            <div style="border-top:1px solid #eee; grid-column: span 2; margin-top:5px; padding-top:5px; display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <div><label class="lbl-mini">Ingreso</label><input type="date" class="full-w" id="mod_dateIn" value="${p.dateIn || ''}"></div>
+                <div><label class="lbl-mini">Egreso</label><input type="date" class="full-w" id="mod_dateOut" value="${p.dateOut || ''}"></div>
+                <div><label class="lbl-mini">CBU</label><input class="full-w" id="mod_cbu" value="${p.cbu || ''}"></div>
+                <div><label class="lbl-mini">Obra Social</label><input class="full-w" id="mod_obraSocial" value="${p.obraSocial || ''}"></div>
+                <div style="grid-column: span 2;"><label class="lbl-mini">Info Fiscal</label><input class="full-w" id="mod_taxInfo" value="${p.taxInfo || ''}"></div>
+            </div>
 
             <div style="grid-column: span 2; background:#eef; padding:10px; border-radius:4px; margin-top:5px; border:1px solid #ccd;">
                 <h4 style="margin:0 0 10px 0; color:#333;">🌳 Configuración Organigrama</h4>
@@ -244,17 +284,19 @@ function renderDevelopmentTab(p) {
 
     devContainer.innerHTML = `
         <h3 style="margin:10px 0;">📈 Ficha de Desarrollo</h3>
+        
         <div style="background:#f9f9f9; padding:10px; border-radius:5px; margin-bottom:10px;">
-            <strong>Estadísticas (1 al 5)</strong>
+            <strong>Estadísticas (0 al 10)</strong>
             ${STAT_KEYS.map(key => `
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-top:5px;">
                     <label style="font-size:0.9em; width:120px;">${key}</label>
-                    <input type="range" min="1" max="5" step="1" value="${p.stats[key] || 0}" 
+                    <input type="range" min="0" max="10" step="1" value="${p.stats[key] || 0}" 
                         id="stat_${key}" style="flex:1" oninput="document.getElementById('val_${key}').innerText = this.value">
                     <span id="val_${key}" style="width:20px; text-align:right; font-weight:bold;">${p.stats[key] || 0}</span>
                 </div>
             `).join('')}
         </div>
+
         <div style="background:#f9f9f9; padding:10px; border-radius:5px; margin-bottom:10px;">
             <strong>🏅 Medallas e Insignias</strong>
             <div id="activeBadgesArea" style="display:flex; flex-wrap:wrap; gap:10px; padding:10px 0; min-height:40px;">
@@ -266,13 +308,44 @@ function renderDevelopmentTab(p) {
                 <button class="btn small" type="button" onclick="addNewBadgeManual()">Agregar</button>
             </div>
         </div>
-        <div>
-            <label style="font-size:0.8em; font-weight:bold;">Notas de Desarrollo</label>
-            <textarea id="mod_devNotes" style="width:100%; box-sizing:border-box;" rows="3">${p.devNotes || ''}</textarea>
+
+        <div style="margin-top:20px; border-top: 1px solid #ddd; padding-top:15px;">
+            <h4 style="background:#e3f2fd; padding:8px; border-radius:4px; color:#0d47a1; margin-bottom:10px;">📋 EVALUACIÓN DEL DESEMPEÑO</h4>
+            <label class="lbl-mini" style="font-weight:bold;">1. INDICADORES CLAVES</label>
+            <textarea id="mod_evalIndicadores" class="full-w" rows="2">${p.evalIndicadores || ''}</textarea>
+            <label class="lbl-mini" style="font-weight:bold; margin-top:8px;">2. RESULTADOS ALCANZADOS</label>
+            <textarea id="mod_evalResultados" class="full-w" rows="2">${p.evalResultados || ''}</textarea>
+            <label class="lbl-mini" style="font-weight:bold; margin-top:8px;">3. COMPORTAMIENTOS OBSERVADOS</label>
+            <textarea id="mod_evalComportamientos" class="full-w" rows="2">${p.evalComportamientos || ''}</textarea>
+            <label class="lbl-mini" style="font-weight:bold; margin-top:8px;">4. NIVEL DE DESEMPEÑO</label>
+            <textarea id="mod_evalNivel" class="full-w" rows="2">${p.evalNivel || ''}</textarea>
+        </div>
+
+        <div style="margin-top:20px; border-top: 1px solid #ddd; padding-top:15px;">
+            <h4 style="background:#e8f5e9; padding:8px; border-radius:4px; color:#1b5e20; margin-bottom:10px;">🚀 DESARROLLO Y CAPACITACIÓN</h4>
+            <label class="lbl-mini" style="font-weight:bold;">1. NECESIDADES DETECTADAS</label>
+            <textarea id="mod_capNecesidades" class="full-w" rows="2">${p.capNecesidades || ''}</textarea>
+            <label class="lbl-mini" style="font-weight:bold; margin-top:8px;">2. PLAN DE CAPACITACIÓN</label>
+            <textarea id="mod_capPlan" class="full-w" rows="2">${p.capPlan || ''}</textarea>
+            <label class="lbl-mini" style="font-weight:bold; margin-top:8px;">3. ACCIONES DE SEGUIMIENTO</label>
+            <textarea id="mod_capSeguimiento" class="full-w" rows="2">${p.capSeguimiento || ''}</textarea>
+        </div>
+
+        <div style="margin-top:20px; border-top: 1px solid #ddd; padding-top:15px;">
+            <h4 style="background:#fff3e0; padding:8px; border-radius:4px; color:#e65100; margin-bottom:10px;">🗂️ DOCUMENTACIÓN Y ARCHIVOS</h4>
+            
+            <div id="fileListArea" style="margin-bottom:10px;">
+                ${renderFilesListHTML(p.attachments)}
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:center; background:#fafafa; padding:10px; border:1px dashed #ccc; border-radius:5px;">
+                <input type="file" id="newFileInput" style="flex:1;" multiple>
+                <button class="btn small" type="button" onclick="handleFileUploadManual()">Subir Archivo</button>
+            </div>
+            <p style="font-size:0.75em; color:#999; margin-top:5px;">* Nota: Evitar archivos muy pesados hasta tener el servidor local.</p>
         </div>
     `;
 }
-
 function renderBadgesHTML(badges) {
     if(!badges || badges.length === 0) return '<span style="color:#999; font-size:0.8em;">Sin medallas aún...</span>';
     return badges.map((b, idx) => `
@@ -304,6 +377,9 @@ window.removeBadge = function(idx) {
     }
 };
 
+// ==========================================
+// FUNCIÓN SAVE PERSON FROM MODAL (ACTUALIZADA)
+// ==========================================
 window.savePersonFromModal = function(id) {
     const idx = people.findIndex(x => x.id === id);
     if(idx === -1) return;
@@ -311,36 +387,71 @@ window.savePersonFromModal = function(id) {
     const oldData = JSON.parse(JSON.stringify(people[idx]));
     const p = people[idx];
 
-    p.name = document.getElementById('mod_name').value;
-    p.sectorId = document.getElementById('mod_sectorId').value;
-    p.cuil = document.getElementById('mod_cuil').value;
-    p.birthDate = document.getElementById('mod_birthDate').value;
-    p.maritalStatus = document.getElementById('mod_maritalStatus').value;
-    p.address = document.getElementById('mod_address').value;
-    p.emergencyContact = document.getElementById('mod_emergencyContact').value;
-    p.direccionOficina = document.getElementById('mod_direccionOficina').value;
-    p.spouseInfo = document.getElementById('mod_spouseInfo').value;
-    p.childrenInfo = document.getElementById('mod_childrenInfo').value;
-    p.legajo = document.getElementById('mod_legajo').value;
-    p.categoria = document.getElementById('mod_categoria').value;
-    p.rol = document.getElementById('mod_rol').value;
-    p.area = document.getElementById('mod_area').value;
-    p.coordinador = document.getElementById('mod_coordinador').value;
-    p.dateIn = document.getElementById('mod_dateIn').value;
-    p.dateOut = document.getElementById('mod_dateOut').value;
-    p.cbu = document.getElementById('mod_cbu').value;
-    p.obraSocial = document.getElementById('mod_obraSocial').value;
-    p.taxInfo = document.getElementById('mod_taxInfo').value;
+    // Mapeo seguro usando getSafeValue
+    // Nota: getSafeValue es una función auxiliar que te pasé en la respuesta anterior.
+    // Si no la tienes definida, usa document.getElementById(...).value directamente.
+    
+    const getValue = (elemId) => {
+        const el = document.getElementById(elemId);
+        return el ? el.value : '';
+    };
 
-    p.personJerId = document.getElementById('mod_personJerId').value; 
-    p.parent = document.getElementById('mod_parent').value; 
+    p.name = getValue('mod_name');
+    p.sectorId = getValue('mod_sectorId');
+    p.cuil = getValue('mod_cuil');
+    p.birthDate = getValue('mod_birthDate');
+    p.maritalStatus = getValue('mod_maritalStatus');
+    p.address = getValue('mod_address');
+    
+    // Campos Nuevos Personales
+    p.nacionalidad = getValue('mod_nacionalidad');
+    p.estudios = getValue('mod_estudios');
+    p.experienciaLaboral = getValue('mod_experienciaLaboral');
 
+    p.emergencyContact = getValue('mod_emergencyContact');
+    p.direccionOficina = getValue('mod_direccionOficina');
+    p.spouseInfo = getValue('mod_spouseInfo');
+    p.childrenInfo = getValue('mod_childrenInfo');
+    
+    // Laborales
+    p.legajo = getValue('mod_legajo');
+    p.categoria = getValue('mod_categoria');
+    p.rol = getValue('mod_rol');
+    p.area = getValue('mod_area');
+    p.coordinador = getValue('mod_coordinador');
+    
+    // Campos Nuevos Laborales
+    p.mision = getValue('mod_mision');
+    p.responsabilidades = getValue('mod_responsabilidades');
+    p.compTecnicas = getValue('mod_compTecnicas');
+    p.compConductuales = getValue('mod_compConductuales');
+
+    p.dateIn = getValue('mod_dateIn');
+    p.dateOut = getValue('mod_dateOut');
+    p.cbu = getValue('mod_cbu');
+    p.obraSocial = getValue('mod_obraSocial');
+    p.taxInfo = getValue('mod_taxInfo');
+
+    // Organigrama
+    p.personJerId = getValue('mod_personJerId'); 
+    p.parent = getValue('mod_parent'); 
+
+    // Stats y Notas
     p.stats = {};
     STAT_KEYS.forEach(k => {
-        const val = document.getElementById('stat_' + k).value;
+        const val = getValue('stat_' + k);
         p.stats[k] = val;
     });
-    p.devNotes = document.getElementById('mod_devNotes').value;
+    p.devNotes = getValue('mod_devNotes');
+    // Evaluación
+    p.evalIndicadores = getValue('mod_evalIndicadores');
+    p.evalResultados = getValue('mod_evalResultados');
+    p.evalComportamientos = getValue('mod_evalComportamientos');
+    p.evalNivel = getValue('mod_evalNivel');
+    // Capacitación
+    p.capNecesidades = getValue('mod_capNecesidades');
+    p.capPlan = getValue('mod_capPlan');
+    p.capSeguimiento = getValue('mod_capSeguimiento');
 
     PeopleModule.save();
     PeopleModule.renderPeople();
@@ -462,3 +573,117 @@ function initPeopleUI() {
 }
 
 document.addEventListener('DOMContentLoaded', initPeopleUI);
+
+// Dibuja la lista de archivos
+function renderFilesListHTML(attachments) {
+    if (!attachments || attachments.length === 0) return '<div style="color:#999; font-style:italic;">No hay archivos adjuntos.</div>';
+    
+    return attachments.map((file, idx) => {
+        // Detectamos si es visualizable (Imagen o PDF)
+        const isViewable = file.type.includes('image') || file.type === 'application/pdf';
+        
+        // Botón de Ver (Solo si es compatible)
+        const viewBtn = isViewable 
+            ? `<button type="button" onclick="previewFile(${idx})" style="background:#e3f2fd; border:1px solid #2196f3; color:#0d47a1; cursor:pointer; margin-right:5px; padding:2px 8px; border-radius:4px; font-weight:bold;" title="Ver archivo">👁️</button>` 
+            : '';
+
+        return `
+        <div style="display:flex; align-items:center; justify-content:space-between; background:white; border:1px solid #eee; padding:5px; margin-bottom:5px; border-radius:4px;">
+            <div style="display:flex; align-items:center; gap:8px; overflow:hidden; flex:1;">
+                <span style="font-size:1.2em;">📄</span>
+                <div style="overflow:hidden;">
+                    <a href="${file.data}" download="${file.name}" style="text-decoration:none; color:#333; font-weight:bold; white-space:nowrap; font-size:0.9em;">
+                        ${file.name}
+                    </a>
+                    <div style="font-size:0.7em; color:#999;">${file.date || '-'}</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center;">
+                ${viewBtn}
+                <a href="${file.data}" download="${file.name}" style="text-decoration:none; background:#f5f5f5; border:1px solid #ccc; color:#333; padding:2px 8px; border-radius:4px; margin-right:5px; font-size:0.8em;">⬇</a>
+                <button type="button" onclick="removeFileManual(${idx})" style="background:none; border:none; color:red; cursor:pointer; font-weight:bold; font-size:1.1em;">×</button>
+            </div>
+        </div>
+    `;
+    }).join('');
+}
+
+// Procesa la subida del archivo (Base64)
+window.handleFileUploadManual = function() {
+    const input = document.getElementById('newFileInput');
+    // 1. Obtenemos la lista de todos los archivos seleccionados
+    const files = input.files; 
+    
+    if (!files || files.length === 0) return alert("Selecciona al menos un archivo.");
+
+    const p = people.find(x => x.id === currentEditingId);
+    if (!p) return;
+    
+    if (!p.attachments) p.attachments = [];
+
+    // 2. Convertimos la lista a Array y la recorremos archivo por archivo
+    Array.from(files).forEach(file => {
+        
+        // Validación de tamaño (2MB) por archivo para no saturar el LocalStorage
+        if (file.size > 2 * 1024 * 1024) {
+            alert(`El archivo "${file.name}" es muy pesado (>2MB) y se omitió.`);
+            return; // Salta este archivo y sigue con el siguiente
+        }
+
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Agregamos el archivo al array de la persona
+            p.attachments.push({
+                name: file.name,
+                type: file.type,
+                date: new Date().toLocaleDateString(),
+                data: e.target.result // Aquí guardamos el Base64
+            });
+
+            // Actualizamos la vista de la lista inmediatamente
+            document.getElementById('fileListArea').innerHTML = renderFilesListHTML(p.attachments);
+        };
+        
+        // Leemos el archivo actual
+        reader.readAsDataURL(file);
+    });
+
+    // Limpiamos el input al final para que quede listo para otra carga
+    input.value = '';
+};
+// Borra archivo
+window.removeFileManual = function(idx) {
+    const p = people.find(x => x.id === currentEditingId);
+    if (p && p.attachments && confirm("¿Eliminar este archivo adjunto?")) {
+        p.attachments.splice(idx, 1);
+        document.getElementById('fileListArea').innerHTML = renderFilesListHTML(p.attachments);
+    }
+};
+
+// Vista previa de archivo en nueva pestaña
+window.previewFile = function(idx) {
+    const p = people.find(x => x.id === currentEditingId);
+    if (!p || !p.attachments[idx]) return;
+
+    const file = p.attachments[idx];
+
+    // Abrir una nueva pestaña en blanco
+    const newTab = window.open();
+    
+    if (!newTab) {
+        alert("El navegador bloqueó la ventana emergente. Por favor permite pop-ups para ver el archivo.");
+        return;
+    }
+
+    // Escribir el contenido en la nueva pestaña
+    newTab.document.write(`
+        <html>
+            <head><title>Vista Previa: ${file.name}</title></head>
+            <body style="margin:0; display:flex; justify-content:center; align-items:center; background:#333; height:100vh;">
+                <iframe src="${file.data}" style="border:none; width:100%; height:100%;" allowfullscreen></iframe>
+            </body>
+        </html>
+    `);
+    newTab.document.close(); // Importante para que el navegador termine de cargar
+};
