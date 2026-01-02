@@ -1,9 +1,10 @@
 // ==========================================
-// api.js - VERSIÓN FINAL CON DESBLOQUEO NGROK
+// api.js - VERSIÓN FINAL (Fuerza Ngrok)
 // ==========================================
 
-// TU URL DE NGROK (Copiada de tu captura)
-// Si reinicias Ngrok y cambia la URL, solo actualiza esta línea.
+console.log("⚡ CARGANDO NUEVO API.JS CON PARCHE NGROK ⚡"); // <--- BUSCA ESTO EN CONSOLA
+
+// Tu URL de Ngrok (revisa que no haya cambiado en la pantalla negra)
 const SERVIDOR_URL = 'https://unruminant-francina-froglike.ngrok-free.dev/api';
 
 const API = {
@@ -11,25 +12,29 @@ const API = {
     async cargar(endpoint) {
         try {
             const url = `${SERVIDOR_URL}/${endpoint}`;
-            
+            console.log(`📡 Solicitando: ${endpoint}`); // Log para depurar
+
             const respuesta = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    // ESTA ES LA CLAVE MAESTRA PARA NGROK:
-                    'ngrok-skip-browser-warning': 'true',
-                    // Headers estándar
+                headers: new Headers({
+                    // ESTA ES LA CLAVE PARA SALTAR LA ADVERTENCIA:
+                    'ngrok-skip-browser-warning': '69420', 
                     'Content-Type': 'application/json'
-                }
+                })
             });
 
-            if (!respuesta.ok) throw new Error(`Error HTTP: ${respuesta.status}`);
+            // Si Ngrok nos devuelve HTML (Error), lo detectamos aquí
+            const texto = await respuesta.text();
             
-            // Convertimos la respuesta a JSON
-            return await respuesta.json();
+            try {
+                return JSON.parse(texto); // Intentamos convertir a JSON
+            } catch (jsonError) {
+                console.error("🔥 NGROK BLOQUEÓ LA PETICIÓN. RESPUESTA RECIBIDA:", texto);
+                throw new Error("Ngrok devolvió HTML en lugar de JSON. Revisa la consola.");
+            }
 
         } catch (error) {
             console.error(`❌ Error cargando ${endpoint}:`, error);
-            // Retornamos array vacío para que la web no se rompa
             return []; 
         }
     },
@@ -41,11 +46,10 @@ const API = {
 
             const respuesta = await fetch(url, {
                 method: 'POST',
-                headers: { 
-                    // AQUÍ TAMBIÉN PONEMOS LA CLAVE DE NGROK:
-                    'ngrok-skip-browser-warning': 'true',
+                headers: new Headers({ 
+                    'ngrok-skip-browser-warning': '69420',
                     'Content-Type': 'application/json' 
-                },
+                }),
                 body: JSON.stringify(datos)
             });
 
@@ -56,7 +60,6 @@ const API = {
         } catch (error) {
             console.error(`❌ Error guardando ${endpoint}:`, error);
             alert('¡Error crítico! No se pudo conectar con el servidor.');
-            throw error; // Lanzamos el error para que lo vea el código que llamó
         }
     }
 };
