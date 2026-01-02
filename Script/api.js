@@ -1,4 +1,4 @@
-const SERVIDOR_URL = 'http://localhost:3000/api';
+const SERVIDOR_URL = 'https://unruminant-francina-froglike.ngrok-free.dev';
 
 const API = {
     // Función genérica para cargar datos
