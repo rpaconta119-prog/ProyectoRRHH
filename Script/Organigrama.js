@@ -1,13 +1,26 @@
 /**
  * Script/Organigrama.js
  * Lógica para generar el árbol y manejar la búsqueda de ruta crítica (Pathfinding)
+ * ACTUALIZADO: Carga datos desde el Servidor
  */
 
-$(function() {
+$(async function() {
+    console.log("🌳 Iniciando Organigrama...");
+
     // =========================================================
-    // 1. CARGA DE DATOS (Variable compartida)
+    // 1. CARGA DE DATOS (Desde el Servidor)
     // =========================================================
-    const rawData = JSON.parse(localStorage.getItem('hr_people_v1') || '[]');
+    let rawData = [];
+
+    try {
+        // Pedimos los datos a la API
+        rawData = await API.cargar('people');
+        console.log(`📦 Datos recibidos para organigrama: ${rawData.length} personas.`);
+    } catch (error) {
+        console.error("❌ Error cargando datos para el organigrama:", error);
+        $('#chart-container').html('<p style="color:red; margin:20px;">Error de conexión con el servidor.</p>');
+        return;
+    }
 
     // =========================================================
     // 2. FUNCIONES DE AYUDA
@@ -35,13 +48,16 @@ $(function() {
             const parentId = item.parent;
             const currentId = item.personJerId;
 
-            if (parentId && map[parentId]) {
-                map[parentId].children.push(map[currentId]);
-            } else {
-                // Si no tiene padre, o el padre no existe en el mapa, es raíz (o huérfano)
-                // Asumimos que el primero sin padre válido es el Root principal
-                if (!root && !parentId) {
-                    root = map[currentId];
+            // Solo procesamos si tenemos ID válido
+            if (map[currentId]) {
+                if (parentId && map[parentId]) {
+                    map[parentId].children.push(map[currentId]);
+                } else {
+                    // Si no tiene padre, o el padre no existe en el mapa, es raíz (o huérfano)
+                    // Asumimos que el primero sin padre válido es el Root principal
+                    if (!root && !parentId) {
+                        root = map[currentId];
+                    }
                 }
             }
         });
@@ -109,15 +125,15 @@ $(function() {
     // =========================================================
 
     // Validación básica
-    if (rawData.length === 0) {
-        $('#chart-container').html('<p style="margin-top:20px;">No hay personal registrado en la base de datos.</p>');
+    if (!rawData || rawData.length === 0) {
+        $('#chart-container').html('<p style="margin-top:20px; text-align:center;">No hay personal registrado en la base de datos.</p>');
         return;
     }
 
     const datasource = buildHierarchy(rawData);
 
     if (!datasource) {
-        $('#chart-container').html('<p style="margin-top:20px; color:red;">Error: No se pudo identificar al jefe principal (Rango 0). Revisa los datos.</p>');
+        $('#chart-container').html('<p style="margin-top:20px; color:red; text-align:center;">Error: No se pudo identificar al jefe principal (Rango 0). Revisa los datos en "Personal".</p>');
         return;
     }
 
@@ -125,12 +141,11 @@ $(function() {
     $('#chart-container').orgchart({
         'data' : datasource,
         'nodeContent': 'title',
-        'verticalLevel': 3,    // A partir de qué nivel se ponen verticales (ajustar a gusto)
-        'visibleLevel': 99,    // Mostramos todos los niveles expandidos por defecto para facilitar la búsqueda
+        'verticalLevel': 3,    // A partir de qué nivel se ponen verticales
+        'visibleLevel': 99,    // Mostramos todos los niveles
         'toggleSiblingsResp': true,
         'createNode': function($node, data) {
             // *** CRÍTICO: Asignamos un ID único al elemento HTML del nodo ***
-            // Esto nos permite encontrar el cuadro específico después con $('#node-123')
             $node.attr('id', 'node-' + data.personJerId);
 
             // Renderizado de la foto
@@ -162,7 +177,7 @@ $(function() {
 
             // Estilo especial para el Rango 0 (Jefe sin parent)
             if (!data.parent) {
-                $node.find('.title').css('background-color', '#1a252f'); // Un color más oscuro
+                $node.find('.title').css('background-color', '#1a252f');
             }
         }
     });

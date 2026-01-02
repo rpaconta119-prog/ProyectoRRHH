@@ -1,21 +1,46 @@
-const WorkshopModule = (function(){
-  const LS = 'hr_workshops_v1';
-  let workshops = JSON.parse(localStorage.getItem(LS) || '[]');
+// ==========================================
+// MÓDULO DE TALLERES (WORKSHOPS) - SERVIDOR
+// ==========================================
 
-  // Función interna para guardar
-  function save(){
-    localStorage.setItem(LS, JSON.stringify(workshops));
-    window.workshops = workshops; // Exponer para otros scripts
-    if (typeof updateStats === 'function') updateStats();
-    if (typeof renderReport === 'function') renderReport();
-    if (typeof renderList === 'function') renderList();
-    if (typeof renderCalendar === 'function') renderCalendar();
+const WorkshopModule = (function(){
+  // Variable en memoria
+  let workshops = [];
+
+  // Helper para obtener personas (necesario para nombres de asistentes)
+  async function getPeople() {
+    if (window.people && window.people.length > 0) return window.people;
+    return await API.cargar('people');
+  }
+
+  // --- FUNCIÓN DE GUARDADO (ASYNC) ---
+  async function save(){
+    try {
+        await API.guardar('workshops', workshops);
+        window.workshops = workshops;
+        
+        // Actualizar UI
+        if (typeof updateStats === 'function') updateStats();
+        if (typeof renderList === 'function') renderList();
+        if (typeof renderCalendar === 'function') renderCalendar();
+        
+        // Si hay un reporte abierto, refrescarlo
+        const reportModal = document.getElementById('reportModal');
+        if (reportModal && !reportModal.classList.contains('hidden')) {
+            // Buscamos el ID del taller que se está mostrando en el reporte
+            // (Un poco hacky, pero efectivo: buscamos en el título)
+            const title = document.getElementById('reportTitle')?.textContent; 
+            // O mejor, si tienes una variable global de "taller actual", úsala.
+        }
+
+    } catch (error) {
+        console.error("❌ Error guardando talleres:", error);
+    }
   }
 
   // --- Fechas / Calendario utilities ---
   let calendar = null;
 
-  function ensureDates() {
+  async function ensureDates() {
     let changed = false;
     workshops.forEach(w => {
       if (!w.start) {
@@ -32,7 +57,8 @@ const WorkshopModule = (function(){
       if (!w.logs) { w.logs = []; changed = true; }
       if (!w.docs) { w.docs = []; changed = true; }
     });
-    if (changed) localStorage.setItem(LS, JSON.stringify(workshops));
+    
+    if (changed) await save();
   }
 
   function formatDateTime(iso) {
@@ -46,6 +72,7 @@ const WorkshopModule = (function(){
     const el = document.getElementById('calendar');
     if (!el || !window.FullCalendar) return;
     if (calendar) { try { calendar.destroy(); } catch(_){} }
+    
     calendar = new FullCalendar.Calendar(el, {
       initialView: 'dayGridMonth',
       locale: 'es',
@@ -61,6 +88,7 @@ const WorkshopModule = (function(){
       },
       eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false }
     });
+    
     renderCalendar();
     calendar.render();
   }
@@ -68,6 +96,7 @@ const WorkshopModule = (function(){
   function renderCalendar(){
     if (!calendar) return;
     calendar.removeAllEvents();
+    
     workshops.forEach(w => {
       if (Array.isArray(w.weekdays) && w.weekdays.length > 0 && w.start && w.end) {
         const s = new Date(w.start);
@@ -88,13 +117,16 @@ const WorkshopModule = (function(){
   }
 
   // --- Panel Lateral ---
-  function renderSidePanel(id){
+  async function renderSidePanel(id){
     const el = document.getElementById('sideWorkshop');
     if(!el) return;
     if(!id){ el.innerHTML = '<p class="muted">Seleccioná un taller para ver sus detalles e informes.</p>'; return; }
+    
     const w = workshops.find(x=>x.id===id);
     if(!w) { el.innerHTML = '<p class="muted">Taller no encontrado.</p>'; return; }
-    const ppl = JSON.parse(localStorage.getItem('hr_people_v1') || '[]');
+    
+    // Obtenemos personas (async)
+    const ppl = await getPeople();
 
     const attendees = (w.attendees||[]).map(a => {
       const p = ppl.find(pp => pp.id === a.id) || {};
@@ -135,7 +167,7 @@ const WorkshopModule = (function(){
   }
 
   // --- Gestión de Bitácora ---
-  function addLog(workshopId, text, isFeatured = false) {
+  async function addLog(workshopId, text, isFeatured = false) {
     if (!text || !text.trim()) return alert('Escribe un comentario para la bitácora.');
     const idx = workshops.findIndex(w => w.id === workshopId);
     if (idx === -1) return;
@@ -150,18 +182,22 @@ const WorkshopModule = (function(){
 
     if (!workshops[idx].logs) workshops[idx].logs = [];
     workshops[idx].logs.unshift(newLog);
-    save();
+    
+    await save();
+    
     exportReport(workshopId);
     if (document.getElementById('sideWorkshop')) renderSidePanel(workshopId);
     return newLog;
   }
 
-  function removeLog(workshopId, logId) {
+  async function removeLog(workshopId, logId) {
     if(!confirm('¿Eliminar esta nota?')) return;
     const w = workshops.find(x => x.id === workshopId);
     if (!w || !w.logs) return;
     w.logs = w.logs.filter(l => l.id !== logId);
-    save();
+    
+    await save();
+    
     exportReport(workshopId);
     if (document.getElementById('sideWorkshop')) renderSidePanel(workshopId);
   }
@@ -169,10 +205,11 @@ const WorkshopModule = (function(){
   // --- Gestión de Documentos ---
   function uploadDoc(workshopId, file) {
     if (!file) return;
-    if (file.size > 1024 * 1024) return alert("El archivo supera el límite de 1MB.");
+    // Límite local para no saturar subida
+    if (file.size > 2 * 1024 * 1024) return alert("El archivo supera el límite recomendado de 2MB.");
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
       const idx = workshops.findIndex(w => w.id === workshopId);
       if (idx === -1) return;
 
@@ -186,19 +223,21 @@ const WorkshopModule = (function(){
 
       if (!workshops[idx].docs) workshops[idx].docs = [];
       workshops[idx].docs.push(newDoc);
-      save();
+      
+      await save();
+      
       exportReport(workshopId);
       if (document.getElementById('sideWorkshop')) renderSidePanel(workshopId);
     };
     reader.readAsDataURL(file);
   }
 
-  function removeDoc(workshopId, docId) {
+  async function removeDoc(workshopId, docId) {
     if (!confirm("¿Eliminar este documento?")) return;
     const w = workshops.find(x => x.id === workshopId);
     if (w && w.docs) {
       w.docs = w.docs.filter(d => d.id !== docId);
-      save();
+      await save();
       exportReport(workshopId);
       if (document.getElementById('sideWorkshop')) renderSidePanel(workshopId);
     }
@@ -234,6 +273,7 @@ const WorkshopModule = (function(){
     }
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
+    // Inicializar Flatpickr si existe
     if (window.flatpickr) {
       flatpickr('#workshopStartModal', {enableTime:true,dateFormat:'Y-m-d H:i', time_24hr:true});
       flatpickr('#workshopEndModal', {enableTime:true,dateFormat:'Y-m-d H:i', time_24hr:true});
@@ -241,7 +281,7 @@ const WorkshopModule = (function(){
   }
 
   function closeWorkshopModal() {
-  const modal = document.getElementById('workshopModal');
+    const modal = document.getElementById('workshopModal');
     if (modal) {
       modal.classList.add('hidden');
       document.body.classList.remove('modal-open');
@@ -249,7 +289,7 @@ const WorkshopModule = (function(){
     }
   }
 
-  function saveWorkshopFromForm(e){
+  async function saveWorkshopFromForm(e){
     e.preventDefault();
     const id = document.getElementById('workshopId').value || 'w-' + Date.now();
     const startVal = document.getElementById('workshopStartModal').value;
@@ -257,7 +297,6 @@ const WorkshopModule = (function(){
     const selectedWeekdays = Array.from(document.querySelectorAll('input[name="weekday"]:checked')).map(c=>Number(c.value));
     
     const idx = workshops.findIndex(w => w.id === id);
-    // Clonar para el log (si es edición, guardamos el viejo)
     const oldData = idx !== -1 ? JSON.parse(JSON.stringify(workshops[idx])) : null;
 
     const data = {
@@ -276,16 +315,14 @@ const WorkshopModule = (function(){
     if (idx !== -1) {
       // EDITAR
       workshops[idx] = Object.assign({}, workshops[idx], data);
-      save();
-      // LOG EDITAR (CORREGIDO)
+      await save();
       if(typeof BacklogService !== 'undefined') BacklogService.log('EDITAR', 'TALLER', oldData, workshops[idx]);
     } else {
       // CREAR
       if (!data.start) data.start = new Date().toISOString();
       if (!data.end) data.end = new Date(Date.parse(data.start) + 60*60*1000).toISOString();
       workshops.unshift(data);
-      save();
-      // LOG CREAR (CORREGIDO)
+      await save();
       if(typeof BacklogService !== 'undefined') BacklogService.log('CREAR', 'TALLER', null, data);
     }
     
@@ -294,16 +331,16 @@ const WorkshopModule = (function(){
     if (document.getElementById('sideWorkshop')) renderSidePanel(id);
   }
 
-  function remove(id){
+  async function remove(id){
     if (!confirm('¿Eliminar este taller?')) return;
     const idx = workshops.findIndex(w => w.id === id);
     if (idx === -1) return;
     
     const old = workshops[idx];
     workshops.splice(idx,1);
-    save();
     
-    // LOG BORRAR (CORREGIDO)
+    await save();
+    
     if(typeof BacklogService !== 'undefined') BacklogService.log('BORRAR', 'TALLER', old, null);
     
     const reportModal = document.getElementById('reportModal');
@@ -320,16 +357,26 @@ const WorkshopModule = (function(){
   }
 
   // --- Reporte Detallado ---
-  function exportReport(id){
+  async function exportReport(id){
     const w = workshops.find(x=>x.id===id);
     if(!w) return alert('Taller no encontrado');
-    const ppl = JSON.parse(localStorage.getItem('hr_people_v1') || '[]');
+    
+    const ppl = await getPeople(); // Personas async
+    
     const user = JSON.parse(localStorage.getItem('hr_current_user'))?.user || 'Sistema';
     const generated = new Date().toLocaleString();
 
+    // Helper para sector
+    const getSectorName = (sid) => {
+        if(window.sectors){
+            return window.sectors.find(s=>s.id===sid)?.name || sid || '-';
+        }
+        return sid || '-';
+    };
+
     const rows = (w.attendees||[]).map((a,i) => {
       const p = ppl.find(pp => pp.id === a.id) || {};
-      const sectorName = (window.sectors||[]).find(s=>s.id===p.sectorId)?.name || p.sectorId || '-';
+      const sectorName = getSectorName(p.sectorId);
       return `<tr><td>${i+1}</td><td>${p.name || a.name}</td><td>${p.legajo || ''}</td><td>${p.cuil || ''}</td><td>${sectorName}</td></tr>`;
     }).join('');
 
@@ -431,12 +478,15 @@ const WorkshopModule = (function(){
     }
   }
 
-  function renderAssignList(){
+  async function renderAssignList(){
     const el = document.getElementById('assignList');
     if(!el) return;
-    const ppl = JSON.parse(localStorage.getItem('hr_people_v1') || '[]');
+    
+    const ppl = await getPeople(); // Personas async
+    
     const w = workshops.find(x=>x.id===currentAssignId);
     const selected = new Set((w?.attendees||[]).map(a=>a.id));
+    
     el.innerHTML = ppl.map(p => `
       <div style="display:flex;align-items:center;gap:8px;padding:5px;border-bottom:1px solid #f0f0f0;">
         <input type="checkbox" data-id="${p.id}" ${selected.has(p.id)?'checked':''}>
@@ -444,11 +494,19 @@ const WorkshopModule = (function(){
       </div>`).join('');
   }
 
-  function initUI(){
-    ensureDates();
+  // --- INICIALIZACIÓN (Async) ---
+  async function initUI(){
+    console.log("🏫 Cargando talleres...");
+    
+    // Carga inicial
+    workshops = await API.cargar('workshops');
+    window.workshops = workshops;
+
+    await ensureDates();
     renderList();
     initCalendar();
 
+    // Listeners UI
     document.getElementById('workshopClose')?.addEventListener('click', closeWorkshopModal);
     document.getElementById('workshopCancel')?.addEventListener('click', closeWorkshopModal);
 
@@ -465,7 +523,7 @@ const WorkshopModule = (function(){
     document.getElementById('workshopFormModal')?.addEventListener('submit', saveWorkshopFromForm);
     
     // GUARDAR ASIGNACIÓN CON LOG
-    document.getElementById('assignSave')?.addEventListener('click', () => {
+    document.getElementById('assignSave')?.addEventListener('click', async () => {
       const checks = document.querySelectorAll('#assignList input:checked');
       const idx = workshops.findIndex(w => w.id === currentAssignId);
       if(idx !== -1) {
@@ -473,9 +531,9 @@ const WorkshopModule = (function(){
         const oldData = JSON.parse(JSON.stringify(workshops[idx]));
         
         workshops[idx].attendees = Array.from(checks).map(c => ({ id: c.dataset.id }));
-        save();
         
-        // Log de asignación (Se muestra como edición)
+        await save();
+        
         if(typeof BacklogService !== 'undefined') BacklogService.log('EDITAR', 'TALLER (ASIGN)', oldData, workshops[idx]);
 
         document.getElementById('assignModal').classList.add('hidden');
@@ -497,6 +555,7 @@ const WorkshopModule = (function(){
     document.getElementById('btnNewWorkshop')?.addEventListener('click', () => openWorkshopModal());
   }
 
+  // Arranque seguro
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initUI); else initUI();
   
   return { 

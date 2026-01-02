@@ -1,52 +1,76 @@
-const LS_BACKLOG = 'hr_backlog_v1';
+// ==========================================
+// SERVICIO DE HISTORIAL (BACKLOG) - VERSIÓN SERVIDOR
+// ==========================================
 
 const BacklogService = {
-    log: function(action, entity, oldData = null, newData = null) {
-        // 1. Obtener historial existente
-        const logs = JSON.parse(localStorage.getItem(LS_BACKLOG) || '[]');
-        
-        // 2. Crear nueva entrada
-        const entry = {
-            id: 'log-' + Date.now(),
-            timestamp: new Date().toISOString(),
-            user: JSON.parse(localStorage.getItem('hr_current_user'))?.user || 'Sistema',
-            action, 
-            entity,
-            // Guardamos detalle estructurado
-            details: { 
-                name: newData?.name || newData?.nombre || oldData?.name || oldData?.nombre || 'N/A', 
-                old: oldData, 
-                new: newData 
-            }
-        };
+    // Función para registrar cambios (Ahora es ASYNC)
+    log: async function(action, entity, oldData = null, newData = null) {
+        console.log("📝 Registrando actividad en servidor...");
 
-        // 3. Agregar al inicio del array
-        logs.unshift(entry);
-        
-        // 4. GUARDAR SIN LÍMITES (Base de datos completa)
-        localStorage.setItem(LS_BACKLOG, JSON.stringify(logs));
+        try {
+            // 1. Obtener historial existente del SERVIDOR
+            let logs = await API.cargar('backlog');
+            
+            // Validación de seguridad por si el archivo está vacío
+            if (!Array.isArray(logs)) logs = [];
+            
+            // 2. Obtener usuario actual (La sesión sigue estando en el navegador)
+            const currentUser = JSON.parse(localStorage.getItem('hr_current_user') || '{}');
 
-        // 5. Actualizar interfaz si existe la función
-        if (typeof renderRecentActivity === 'function') renderRecentActivity();
-        if (typeof updateStats === 'function') updateStats();
+            // 3. Crear nueva entrada
+            const entry = {
+                id: 'log-' + Date.now(),
+                timestamp: new Date().toISOString(),
+                user: currentUser.user || 'Sistema',
+                action: action, 
+                entity: entity,
+                // Guardamos detalle estructurado
+                details: { 
+                    name: newData?.name || newData?.nombre || oldData?.name || oldData?.nombre || 'N/A', 
+                    old: oldData, 
+                    new: newData 
+                }
+            };
+
+            // 4. Agregar al inicio del array
+            logs.unshift(entry);
+            
+            // 5. GUARDAR EN EL SERVIDOR
+            await API.guardar('backlog', logs);
+
+            // 6. Actualizar interfaz si corresponde
+            if (typeof renderRecentActivity === 'function') renderRecentActivity();
+            if (typeof updateStats === 'function') updateStats(); // Si tienes un dashboard con stats
+
+        } catch (error) {
+            console.error("❌ Error al registrar log:", error);
+        }
     },
 
-    getHistory: () => JSON.parse(localStorage.getItem(LS_BACKLOG) || '[]')
+    // Función para leer historial (Ahora es ASYNC)
+    getHistory: async () => {
+        const data = await API.cargar('backlog');
+        return Array.isArray(data) ? data : [];
+    }
 };
 
 // --- FUNCIÓN DE VISUALIZACIÓN ---
-// Esta función lee la base de datos completa y la muestra en el div con scroll
-function renderRecentActivity() {
+async function renderRecentActivity() {
     const listContainer = document.getElementById('recentList');
-    if (!listContainer) return;
+    if (!listContainer) return; // Si no estamos en la página correcta, salir.
 
-    const logs = BacklogService.getHistory();
+    // Mostramos un "Cargando..." sutil
+    listContainer.innerHTML = '<div style="padding:10px; text-align:center; color:#999;">Cargando actividad...</div>';
+
+    // Pedimos los datos al servidor
+    const logs = await BacklogService.getHistory();
     
     if (logs.length === 0) {
         listContainer.innerHTML = '<div style="padding:15px; text-align:center; color:#999;">No hay actividad registrada.</div>';
         return;
     }
 
+    // Renderizamos la lista (El HTML es idéntico al que tenías)
     listContainer.innerHTML = logs.map(log => {
         const dateObj = new Date(log.timestamp);
         const fecha = dateObj.toLocaleDateString();
@@ -60,8 +84,9 @@ function renderRecentActivity() {
         if(log.action === 'BORRAR') { colorStyle = '#dc2626'; bgStyle = '#fee2e2'; } // Rojo
         if(log.action === 'EDITAR') { colorStyle = '#2563eb'; bgStyle = '#dbeafe'; } // Azul
 
-        // Manejo seguro del nombre (por si details es un string viejo o un objeto nuevo)
-        const detalleNombre = typeof log.details === 'object' ? log.details.name : log.details;
+        // Manejo seguro del nombre
+        const detalle = log.details || {};
+        const detalleNombre = (typeof detalle === 'object') ? (detalle.name || 'N/A') : detalle;
 
         return `
         <div style="border-bottom: 1px solid #f0f0f0; padding: 10px 5px; font-size: 0.9em; display:flex; flex-direction:column; gap:4px;">
@@ -80,3 +105,10 @@ function renderRecentActivity() {
         `;
     }).join('');
 }
+
+// Inicializar al cargar la página (si existe el contenedor)
+document.addEventListener('DOMContentLoaded', () => {
+    if(document.getElementById('recentList')) {
+        renderRecentActivity();
+    }
+});
