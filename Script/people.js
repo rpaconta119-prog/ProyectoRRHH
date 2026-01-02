@@ -1,8 +1,8 @@
 // ==========================================
 // 1. CONFIGURACIÓN Y DATOS GLOBALES
 // ==========================================
-let people = JSON.parse(localStorage.getItem('hr_people_v1') || '[]');
-let currentEditingId = null; 
+let people = []; // Inicia vacío, luego se llenará con la API
+let currentEditingId = null;
 
 // Iconos para medallas
 const PREDEFINED_ICONS = [
@@ -19,7 +19,10 @@ const STAT_KEYS = ['ADAPTABILIDAD', 'AUTOCONTROL EMOCIONAL', 'TRABAJO EN EQUIPO'
 // 2. MÓDULO PRINCIPAL (CRUD)
 // ==========================================
 const PeopleModule = {
-    save: function() { localStorage.setItem('hr_people_v1', JSON.stringify(people)); },
+    // Ahora es ASYNC para esperar a que el servidor confirme
+    save: async function() { 
+        await API.guardar('people', people); 
+    },
 
     getSectorName: function(p) {
         const allSectors = window.sectors || [];
@@ -261,7 +264,7 @@ window.viewPerson = function(id) {
         if(confirm("¿Estás seguro de eliminar este registro?")) {
             const old = p;
             people = people.filter(x => x.id !== id);
-            PeopleModule.save();
+            await PeopleModule.save();
             PeopleModule.renderPeople();
             if(typeof BacklogService !== 'undefined') BacklogService.log('BORRAR','PERSONA', old, null);
             closeDetail();
@@ -453,9 +456,9 @@ window.savePersonFromModal = function(id) {
     p.capPlan = getValue('mod_capPlan');
     p.capSeguimiento = getValue('mod_capSeguimiento');
 
-    PeopleModule.save();
+    await PeopleModule.save(); // Esperamos al servidor
     PeopleModule.renderPeople();
-    
+
     if(typeof BacklogService !== 'undefined') {
         BacklogService.log('EDITAR','PERSONA', oldData, p);
     }
@@ -472,11 +475,19 @@ window.closeDetail = function() {
 // ==========================================
 // 5. INICIALIZACIÓN (DOMContentLoaded)
 // ==========================================
-function initPeopleUI() {
+async function initPeopleUI() {
+    console.log("⏳ Cargando personal desde servidor...");
     
+    // 1. CARGAMOS DATOS DEL SERVIDOR
+    people = await API.cargar('people');
+    // Si usas sectores dinámicos, descomenta la siguiente línea:
+    // window.sectors = await API.cargar('sectors'); 
+
+    // 2. Renderizamos
     populateSectorSelects();
     PeopleModule.renderPeople();
 
+    // Lógica del FORMULARIO PRINCIPAL (Submit) ... (El resto sigue igual abajo)
     // Lógica del FORMULARIO PRINCIPAL (Submit)
     const form = document.getElementById('personForm');
     if(form) {
@@ -547,7 +558,7 @@ function initPeopleUI() {
             if(typeof BacklogService !== 'undefined') BacklogService.log('CREAR','PERSONA', null, data);
         }
         
-        PeopleModule.save();
+        await PeopleModule.save();
         PeopleModule.renderPeople();
         form.reset();
         document.getElementById('personId').value = '';
