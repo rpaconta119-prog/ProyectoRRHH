@@ -260,7 +260,7 @@ window.viewPerson = function(id) {
     editBtn.textContent = "💾 Guardar Todo";
     editBtn.onclick = () => { savePersonFromModal(p.id); };
 
-    document.getElementById('deleteFromModal').onclick = () => {
+    document.getElementById('deleteFromModal').onclick = async () => {
         if(confirm("¿Estás seguro de eliminar este registro?")) {
             const old = p;
             people = people.filter(x => x.id !== id);
@@ -383,7 +383,7 @@ window.removeBadge = function(idx) {
 // ==========================================
 // FUNCIÓN SAVE PERSON FROM MODAL (ACTUALIZADA)
 // ==========================================
-window.savePersonFromModal = function(id) {
+window.savePersonFromModal = async function(id) {
     const idx = people.findIndex(x => x.id === id);
     if(idx === -1) return;
 
@@ -482,7 +482,8 @@ async function initPeopleUI() {
     people = await API.cargar('people');
     // Si usas sectores dinámicos, descomenta la siguiente línea:
     // window.sectors = await API.cargar('sectors'); 
-
+    console.log("📦 3. Datos recibidos del servidor:", people);
+    console.log("🔢 Cantidad de personas:", people.length);
     // 2. Renderizamos
     populateSectorSelects();
     PeopleModule.renderPeople();
@@ -547,7 +548,7 @@ async function initPeopleUI() {
         });
     }
 
-    function saveAndRefresh(data, id) {
+    async function saveAndRefresh(data, id) {
         const idx = people.findIndex(p => p.id === id);
         if (idx !== -1) {
             const old = JSON.parse(JSON.stringify(people[idx]));
