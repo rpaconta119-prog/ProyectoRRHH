@@ -1,0 +1,484 @@
+/* =========================================
+   1. RESET Y BASES
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f6f9; /* Fondo gris muy suave profesional */
+    color: #333;
+    line-height: 1.6;
+}
+
+/* =========================================
+   2. TOPBAR (Barra Superior)
+   ========================================= */
+.topbar {
+    background-color: #0d47a1; /* Azul Institucional (ajusta si usas otro tono) */
+    color: white;
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-img {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    background: white; /* Por si el logo es transparente */
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.topbar h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.topbar-right {
+    display: flex;
+    gap: 10px;
+}
+
+/* =========================================
+   3. CONTENEDOR PRINCIPAL Y PANELES
+   ========================================= */
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.panel {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Sombra suave */
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+}
+
+h2, h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.muted {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* =========================================
+   4. BOTONES (Estilo Unificado)
+   ========================================= */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    background-color: #e2e6ea;
+    color: #333;
+}
+
+.btn:hover {
+    background-color: #dbe0e5;
+}
+
+.btn.primary {
+    background-color: #007bff; /* Azul botón */
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: #0056b3;
+}
+
+.btn.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Pequeño ajuste para botones dentro de tarjetas */
+.btn.small {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+/* =========================================
+   5. GRILLA DE TALLERES (LO IMPORTANTE)
+   ========================================= */
+/* El contenedor grid */
+.workshop-grid {
+    display: grid;
+    /* Esto crea columnas automáticas de mínimo 300px */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Las tarjetas individuales (generadas por JS) */
+#workshopList .panel {
+    padding: 15px;
+    border-left: 4px solid #007bff; /* Borde decorativo azul a la izquierda */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: white;
+}
+
+/* Efecto hover en las tarjetas */
+#workshopList .panel:hover {
+    transform: translateY(-5px); /* Se levanta un poco */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Título de la tarjeta */
+#workshopList .panel strong {
+    font-size: 1.1rem;
+    color: #0d47a1;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Botones dentro de la tarjeta */
+#workshopList .panel button {
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Contenedor de botones en la tarjeta */
+#workshopList .panel > div:last-child {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 botones alineados */
+    gap: 5px;
+}
+
+/* =========================================
+   6. CALENDARIO (Ajustes FullCalendar)
+   ========================================= */
+#calendar {
+    /* Limpieza visual del calendario */
+    font-family: inherit;
+}
+.fc-toolbar-title {
+    font-size: 1.2em !important;
+}
+.fc-button-primary {
+    background-color: #0d47a1 !important;
+    border-color: #0d47a1 !important;
+}
+
+/* =========================================
+   7. MODALS (Ventanas Emergentes)
+   ========================================= */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); /* Fondo oscuro transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.modal.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px; /* Ancho por defecto */
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    max-height: 90vh; /* Para que no se salga de pantalla */
+    overflow-y: auto; /* Scroll si es muy alto */
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+/* Formularios en modal */
+form label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+form input, form textarea, form select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-actions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+/* =========================================
+   8. TABLA MATRIZ (Planilla Asistencia)
+   ========================================= */
+.att-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.att-grid-table th, .att-grid-table td {
+    padding: 10px;
+    border: 1px solid #eee;
+    text-align: center;
+}
+.att-grid-table th {
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+}
+.att-grid-table th:first-child, .att-grid-table td:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    border-right: 2px solid #eee;
+    text-align: left;
+    font-weight: bold;
+}
+
+/* =========================================
+   9. RESPONSIVE (Celular)
+   ========================================= */
+@media (max-width: 768px) {
+    .topbar {
+        padding: 0 10px;
+    }
+    .topbar h1 {
+        font-size: 1rem;
+    }
+    .content {
+        padding: 10px !important;
+    }
+    
+    /* El calendario se ajusta en altura */
+    #calendar {
+        height: auto !important;
+        min-height: 400px;
+    }
+
+    /* Los botones dentro de las tarjetas se apilan si es muy chico */
+    #workshopList .panel > div:last-child {
+        grid-template-columns: 1fr; /* Uno abajo del otro en celular muy angosto */
+    }
+}
+/* =========================================
+   ESTILOS DEL MODAL Y FORMULARIO (Face Lift)
+   ========================================= */
+
+/* Encabezado del modal */
+.modal-header-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-header-custom h3 {
+    margin: 0;
+    color: #0d47a1;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+}
+
+/* Estructura del Formulario */
+.styled-form .form-group {
+    margin-bottom: 15px;
+}
+
+.styled-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+/* Inputs bonitos */
+.styled-form input[type="text"],
+.styled-form textarea,
+.styled-form input:not([type="checkbox"]) {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    background-color: #fcfcfc;
+}
+
+.styled-form input:focus,
+.styled-form textarea:focus {
+    border-color: #0d47a1;
+    outline: none;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.1);
+}
+
+/* Fila de dos columnas (para fechas) */
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+.form-row .form-group {
+    flex: 1; /* Ocupan 50% cada uno */
+}
+
+/* --- MAGIA PARA LOS CHECKBOXES (Días) --- */
+.days-wrapper {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap; /* Para que bajen si no entran en celular */
+}
+
+.day-check {
+    /* Hacemos que la etiqueta parezca un botón */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #f0f2f5;
+    padding: 6px 12px;
+    border-radius: 20px; /* Forma de pastilla */
+    font-size: 0.85rem !important; /* Texto más chico */
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+    margin-bottom: 0 !important; /* Override del margin global */
+}
+
+.day-check:hover {
+    background: #e2e6ea;
+}
+
+/* Cuando el checkbox está seleccionado (Truco visual) */
+.day-check:has(input:checked) {
+    background-color: #e3f2fd; /* Azul muy clarito */
+    color: #0d47a1;
+    border-color: #90caf9;
+    font-weight: bold;
+}
+
+/* Botones de acción al final */
+.form-actions {
+    display: flex;
+    justify-content: flex-end; /* A la derecha */
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+/* =========================================
+   CORRECCIONES RESPONSIVE (CELULAR)
+   ========================================= */
+
+@media (max-width: 768px) {
+    
+    /* 1. Arreglar Barra Superior (Botones más chicos) */
+    .topbar {
+        padding: 0 10px; /* Menos borde lateral */
+        height: auto;    /* Permitir que crezca si hace falta */
+        min-height: 60px;
+        flex-wrap: wrap; /* Por si el título es muy largo */
+    }
+
+    .topbar-right {
+        gap: 5px; /* Menos espacio entre botones */
+    }
+
+    .topbar .btn {
+        padding: 5px 8px;   /* Botones más flacos */
+        font-size: 0.75rem; /* Texto más chico */
+    }
+
+    /* 2. Arreglar Cabecera del Calendario (Lo más importante) */
+    /* Forzamos a que los controles se apilen: Botones arriba, Título abajo, Vistas abajo */
+    .fc-header-toolbar {
+        display: flex;
+        flex-direction: column; 
+        gap: 10px;
+        align-items: center;
+    }
+
+    /* Achicamos el título del mes (Enero 2026) */
+    .fc-toolbar-title {
+        font-size: 1.1rem !important; 
+        margin: 0 !important;
+    }
+
+    /* Achicamos los botones del calendario (Mes, Semana, Hoy, Flechas) */
+    .fc-button {
+        padding: 4px 8px !important; 
+        font-size: 0.75rem !important;
+    }
+
+    /* 3. Ajuste del botón "Nuevo Taller" en el panel */
+    #btnNewWorkshop {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+}

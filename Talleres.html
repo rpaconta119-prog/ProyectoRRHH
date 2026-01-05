@@ -4,103 +4,159 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Talleres - Recursos Humanos</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles/Talleres.css">
+  
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
+  
   <header class="topbar">
     <div class="topbar-left">
       <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
-      <h1>Talleres</h1>
+      <h1>Gestión de Talleres</h1>
     </div>
     <div class="topbar-right">
       <a href="index.html" class="btn">Volver al panel</a>
-      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+      <button id="btn-logout" class="btn">Salir</button>
     </div>
   </header>
 
-  <main class="content" style="padding:24px;">
-    <section class="panel-grid" style="grid-template-columns:1fr 360px; gap:16px;">
-      
-      <div class="panel">
-        <h2>Talleres</h2>
-        <div class="controls" style="margin-bottom:12px;">
-          <button id="btnNewWorkshop" class="btn primary">Nuevo taller</button>
-        </div>
-        <div id="calendar" style="margin-bottom:12px;"></div>
+  <main class="content" style="padding: 20px;">
+    
+    <div class="panel" style="margin-bottom: 20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h2>Calendario</h2>
+        <button id="btnNewWorkshop" class="btn primary">Taller (+ Nuevo)</button>
       </div>
-      <!-- Panel derecho: lista de talleres y detalle -->
-      <div class="panel" id="sidePanel" style="min-height:200px;">
-        <h3>Talleres</h3>
-        <div id="workshopList" style="display:grid;gap:12px;"></div>
-        <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
-      </div>    </section>
+      <div id="calendar" style="min-height: 500px;"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Listado de Talleres</h3>
+      <p class="muted" style="margin-bottom: 15px;">Aquí están todos tus talleres activos.</p>
+      
+      <div id="workshopList" class="workshop-grid">
+        <p>Cargando talleres...</p>
+      </div>
+    </div>
+
   </main>
+
+  <div id="workshopModal" class="modal hidden">
+    <div class="modal-content" style="max-width: 500px;">
+      
+      <div class="modal-header-custom">
+        <h3 id="workshopModalTitle">Nuevo Taller</h3>
+        <button class="modal-close-btn" id="workshopClose">✕</button>
+      </div>
+
+      <form id="workshopFormModal" class="styled-form">
+        <input type="hidden" id="workshopId">
+
+        <div class="form-group">
+          <label for="workshopNameModal">Nombre del Taller</label>
+          <input id="workshopNameModal" type="text" placeholder="Ej: Yoga Avanzado" required />
+        </div>
+
+        <div class="form-group">
+          <label for="workshopInstructorModal">Instructor</label>
+          <input id="workshopInstructorModal" type="text" placeholder="Nombre del instructor" />
+        </div>
+
+        <div class="form-group">
+          <label>Días de repetición:</label>
+          <div class="days-wrapper">
+            <label class="day-check"><input type="checkbox" name="weekday" value="1"> Lun</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="2"> Mar</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="3"> Mié</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="4"> Jue</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="5"> Vie</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="6"> Sáb</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="0"> Dom</label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="workshopStartModal">Inicio</label>
+            <input id="workshopStartModal" placeholder="Seleccionar..." />
+          </div>
+          <div class="form-group">
+            <label for="workshopEndModal">Fin</label>
+            <input id="workshopEndModal" placeholder="Seleccionar..." />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="workshopDescModal">Descripción (Opcional)</label>
+          <textarea id="workshopDescModal" rows="3" placeholder="Detalles adicionales..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="workshopCancel" class="btn">Cancelar</button>
+          <button type="submit" id="workshopSave" class="btn primary">Guardar Taller</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="reportModal" class="modal hidden">
+    <div class="modal-content" style="max-width:900px;">
+        <button class="modal-close" id="reportClose">✕</button>
+        <h3 id="reportTitle">Informe</h3>
+        <div id="reportBody"></div>
+    </div>
+  </div>
 
   <div id="assignModal" class="modal hidden">
     <div class="modal-content">
-      <button class="modal-close" id="assignClose">✕</button>
-      <h3>Asignar personal</h3>
-      
-      <div style="display:flex; gap:8px; margin:10px 0;">
-          <input type="text" id="searchAssign" placeholder="Buscar nombre..." style="flex:1;">
-          <select id="filterSectorAssign">
-              <option value="">Sectores...</option>
-          </select>
-      </div>
-
-      <div id="assignList" style="max-height:300px; overflow:auto; border:1px solid #eee;"></div>
-      
-      <div class="form-actions" style="margin-top:12px;">
-        <button id="assignSave" class="btn primary">Guardar asignación</button>
-        <button id="assignCancel" class="btn">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para mostrar informe detallado del taller -->
-  <div id="reportModal" class="modal hidden">
-    <div class="modal-content" style="max-width:900px; width:calc(100% - 40px);">
-      <button class="modal-close" id="reportClose">✕</button>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;">
-        <h3 id="reportTitle">Informe</h3>
-        <div>
-          <button id="reportPrint" class="btn">Imprimir</button>
-          <button id="reportDownload" class="btn">Descargar .doc</button>
-        </div>
-      </div>
-      <div id="reportBody" style="max-height:70vh;overflow:auto;padding-right:8px;"></div>
-    </div>
-  </div>
-
-  <!-- Modal para crear/editar taller -->
-  <div id="workshopModal" class="modal hidden">
-    <div class="modal-content" style="max-width:700px; width:calc(100% - 40px);">
-      <button class="modal-close" id="workshopClose">✕</button>
-      <h3 id="workshopModalTitle">Nuevo taller</h3>
-      <form id="workshopFormModal">
-        <input type="hidden" id="workshopId">
-        <label>Nombre <input id="workshopNameModal" required /></label>
-        <label>Instructor <input id="workshopInstructorModal" /></label>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <label style="margin-right:8px">Dias repetición:</label>
-          <label><input type="checkbox" name="weekday" value="1"> Lun</label>
-          <label><input type="checkbox" name="weekday" value="2"> Mar</label>
-          <label><input type="checkbox" name="weekday" value="3"> Mie</label>
-          <label><input type="checkbox" name="weekday" value="4"> Jue</label>
-          <label><input type="checkbox" name="weekday" value="5"> Vie</label>
-          <label><input type="checkbox" name="weekday" value="6"> Sab</label>
-          <label><input type="checkbox" name="weekday" value="0"> Dom</label>
-        </div>
-        <label>Inicio <input id="workshopStartModal" placeholder="YYYY-MM-DD HH:mm" /></label>
-        <label>Fin <input id="workshopEndModal" placeholder="YYYY-MM-DD HH:mm" /></label>
-        <label>Descripción <textarea id="workshopDescModal" rows="3"></textarea></label>
+        <button class="modal-close" id="assignClose">✕</button>
+        <h3>Asignar</h3>
+        <div id="assignList" style="max-height:300px;overflow:auto;"></div>
         <div class="form-actions">
-          <button id="workshopSave" class="btn primary" type="submit">Guardar</button>
-          <button type="button" id="workshopCancel" class="btn">Cancelar</button>
+            <button id="assignSave" class="btn primary">Guardar</button>
         </div>
-      </form>
+    </div>
+  </div>
+
+  <div id="attendanceModal" class="modal hidden" style="z-index:3000;">
+    <div class="modal-content" style="max-width:95%; height:90vh; display:flex; flex-direction:column;">
+        <div class="modal-header" style="display:flex; justify-content:space-between;">
+            <h2 id="attModalTitle">Matriz</h2>
+            <button id="attClose" class="btn">Cerrar</button>
+        </div>
+        <div style="flex:1; overflow:auto;">
+            <table class="att-grid-table">
+                <thead id="attGridHead"></thead>
+                <tbody id="attGridBody"></tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+  <div id="attendanceModal" class="modal hidden" style="z-index:3000;">
+    <div class="modal-content" style="max-width:95%; height:90vh; display:flex; flex-direction:column;">
+        
+        <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+            <div>
+                <h2 id="attModalTitle" style="margin:0;">Matriz</h2>
+                <p id="attModalSubtitle" class="muted" style="margin:0; font-size:0.9rem;">Vista general</p> 
+            </div>
+            <button id="attClose" class="btn">Cerrar</button>
+        </div>
+
+        <div style="flex:1; overflow:auto; border: 1px solid #eee; border-radius: 4px;">
+            <table class="att-grid-table">
+                <thead id="attGridHead"></thead>
+                <tbody id="attGridBody"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 10px; display:flex; gap: 15px; font-size: 12px; color: #666;">
+            <div style="display:flex; align-items:center; gap:5px;"><span style="width:12px;height:12px;background:#e6fffa;border:1px solid #28a745;display:inline-block;border-radius:2px;"></span> Presente</div>
+            <div style="display:flex; align-items:center; gap:5px;"><span style="width:12px;height:12px;background:#fff5f5;border:1px solid #dc3545;display:inline-block;border-radius:2px;"></span> Ausente</div>
+        </div>
+
     </div>
   </div>
   <script src="Script/api.js"></script>
@@ -111,5 +167,6 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script src="Script/workshops.js"></script>
+
 </body>
 </html>

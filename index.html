@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Recursos Humanos - Panel Unificado</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,8 +17,12 @@
     </div>
     <div class="topbar-right">
       <div id="userArea" class="user">—</div>
-      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
-      <button id="btn-toggle-sidebar" class="icon-btn">☰</button>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
+      <button id="btn-toggle-sidebar" class="icon-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
     </div>
   </header>
 
@@ -25,18 +32,59 @@
         <div class="avatar" id="sideAvatar">U</div>
         <div>
           <div class="name" id="sideName">Usuario</div>
-          <div class="role">Administrador</div>
+          <div class="role" id="sideRole">...</div>
         </div>
       </div>
+      
       <nav class="nav">
-        <h1>Dashboard</h1>
-        <a href="Personal.html" class="nav-item">Personas</a>
-        <a href="#" class="nav-item" data-section="section-sectors">Sectores</a>
-        <a href="Talleres.html" class="nav-item" data-section="section-workshops">Talleres</a>
-        <a href="Organigrama.html" class="nav-item">Organigrama</a>
-        <a href="Entrevistas.html" class="nav-item">Entrevistas</a>
-        <a href="Documentacion.html" class="nav-item">Documentación</a>
-        <a href="Actas.html" class="nav-item">Actas Administrativas</a>
+        <h3 class="nav-title" style="font-size: 0.75rem; color: #8898aa; margin: 15px 0 5px 10px; text-transform:uppercase;">Principal</h3>
+        
+        <a href="Personal.html" class="nav-item">
+          <i class="fa-solid fa-users" style="width:20px; text-align:center; margin-right:8px;"></i> 
+          <span>Personas</span>
+        </a>
+        
+        <a href="#" class="nav-item" data-section="section-sectors">
+          <i class="fa-solid fa-building" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Sectores</span>
+        </a>
+        
+        <a href="Talleres.html" class="nav-item" data-section="section-workshops">
+          <i class="fa-solid fa-chalkboard-user" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Talleres</span>
+        </a>
+        
+        <a href="Organigrama.html" class="nav-item">
+          <i class="fa-solid fa-sitemap" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Organigrama</span>
+        </a>
+
+        <h3 class="nav-title" style="font-size: 0.75rem; color: #8898aa; margin: 15px 0 5px 10px; text-transform:uppercase;">Gestión</h3>
+
+        <a href="Entrevistas.html" class="nav-item">
+          <i class="fa-solid fa-clipboard-user" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Entrevistas</span>
+        </a>
+        
+        <a href="Documentacion.html" class="nav-item">
+          <i class="fa-solid fa-folder-open" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Documentación</span>
+        </a>
+        
+        <a href="Actas.html" class="nav-item">
+          <i class="fa-solid fa-file-signature" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Actas Administrativas</span>
+        </a>
+        
+        <a href="Calendario de Licencias.html" class="nav-item">
+          <i class="fa-solid fa-calendar-days" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Calendario de Licencias</span>
+        </a>
+        
+        <a href="Gestor de Cuentas.html" class="nav-item" id="nav-gestor" style="display: none;">
+          <i class="fa-solid fa-user-gear" style="width:20px; text-align:center; margin-right:8px;"></i>
+          <span>Gestor de Cuentas</span>
+        </a>
       </nav>
     </aside>
 
@@ -44,54 +92,66 @@
       <section id="section-dashboard" class="content-section">
         <div class="section-inner">
           <div class="panel">
-            <h2>Tablero de Control</h2>
-            <div class="summary-row" style="display:flex;gap:12px;margin-top:12px;">
-              <div class="stat-card">
-                <div class="stat-number" id="statPeople">0</div>
-                <div class="muted">Personas</div>
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                <i class="fa-solid fa-chart-line" style="font-size:1.5rem; color:#4a5568;"></i>
+                <h2 style="margin:0;">Tablero de Control</h2>
+            </div>
+            
+            <div class="summary-row stats-container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px;">
+              
+              <div class="stat-card blue" style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border:1px solid #e2e8f0; display:flex; align-items:center;">
+                <div class="stat-icon" style="width:50px; height:50px; background:#ebf8ff; color:#4299e1; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-right:15px;">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                    <div class="stat-number" id="statPeople" style="font-size:1.8rem; font-weight:bold; color:#2d3748;">0</div>
+                    <div class="muted">Personas</div>
+                </div>
               </div>
-              <div class="stat-card">
-                <div class="stat-number" id="statSectors">0</div>
-                <div class="muted">Sectores</div>
+
+              <div class="stat-card green" style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border:1px solid #e2e8f0; display:flex; align-items:center;">
+                <div class="stat-icon" style="width:50px; height:50px; background:#f0fff4; color:#48bb78; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-right:15px;">
+                    <i class="fa-solid fa-building"></i>
+                </div>
+                <div>
+                    <div class="stat-number" id="statSectors" style="font-size:1.8rem; font-weight:bold; color:#2d3748;">0</div>
+                    <div class="muted">Sectores</div>
+                </div>
               </div>
-              <div class="stat-card">
-                <div class="stat-number" id="statWorkshops">0</div>
-                <div class="muted">Talleres</div>
+
+              <div class="stat-card orange" style="background:white; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); border:1px solid #e2e8f0; display:flex; align-items:center;">
+                <div class="stat-icon" style="width:50px; height:50px; background:#fffaf0; color:#ed8936; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-right:15px;">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <div class="stat-number" id="statWorkshops" style="font-size:1.8rem; font-weight:bold; color:#2d3748;">0</div>
+                    <div class="muted">Talleres</div>
+                </div>
               </div>
             </div>
-            <h3 style="margin-top:24px;">Actividad Reciente</h3>
-            <div id="recentList" class="muted" style="max-height: 500px; overflow-y: auto; margin-top: 10px; padding-right: 5px; border: 1px solid #eee; padding: 10px; border-radius: 6px;">
+
+            <h3 style="margin-top:30px; margin-bottom:15px;">
+                <i class="fa-solid fa-clock-rotate-left" style="margin-right:8px;"></i> Actividad Reciente
+            </h3>
+            
+            <div id="recentList" class="muted" style="max-height: 500px; overflow-y: auto; padding: 10px; border: 1px solid #eee; border-radius: 6px;">
               Cargando actividad...
             </div>
           </div>
         </div>
       </section>
-      <section id="section-sectors" class="content-section hidden">
-        <div class="section-inner">
-          <div class="panel">
-            <h2>Gestión de Sectores</h2>
-            <p class="muted" style="margin-bottom:15px;">Define las áreas o departamentos de la empresa.</p>
-            
-            <form id="sectorForm" style="display:flex; gap:10px; margin-bottom:20px;">
-              <input type="text" id="sectorNameInput" placeholder="Nombre del nuevo sector..." required style="flex:1;">
-              <button type="submit" class="btn primary">Añadir Sector</button>
-            </form>
 
-            <h3 style="margin-bottom:10px;">Listado de Sectores</h3>
-            <ul id="sectorsListUI" style="list-style:none; padding:0;">
-              <li class="muted">Cargando...</li>
-            </ul>
-          </div>
-        </div>
       <section id="section-sectors" class="content-section hidden">
         <div class="section-inner">
           <div class="panel">
-            <h2>Gestión de Sectores</h2>
+            <h2><i class="fa-solid fa-building"></i> Gestión de Sectores</h2>
             <p class="muted" style="margin-bottom:15px;">Define las áreas o departamentos de la empresa.</p>
             
             <form id="sectorForm" style="display:flex; gap:10px; margin-bottom:20px;">
               <input type="text" id="sectorNameInput" placeholder="Nombre del nuevo sector..." required style="flex:1;">
-              <button type="submit" class="btn primary">Añadir Sector</button>
+              <button type="submit" class="btn primary">
+                  <i class="fa-solid fa-plus"></i> Añadir Sector
+              </button>
             </form>
 
             <h3 style="margin-bottom:10px;">Listado de Sectores</h3>
@@ -103,6 +163,7 @@
       </section>
     </main>
   </div>
+
 <script src="Script/api.js"></script>
 <script src="Script/backlog.js"></script>
 <script src="Script/auth.js"></script>
@@ -111,6 +172,5 @@
 <script src="Script/workshops.js"></script>
 <script src="Script/ui.js"></script>
 <script src="Script/app.js"></script>
-</script>
 </body>
 </html>

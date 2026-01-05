@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestor de Cuentas - Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <h1>Panel de Administración</h1>
+    </div>
+    <div class="topbar-right">
+      <a class="btn" href="index.html">Volver al Inicio</a>
+      <button id="btn-logout" class="btn">Salir</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Solicitudes y Usuarios</h2>
+    <p>Aquí puedes validar el acceso de nuevos usuarios al sistema.</p>
+    
+    <div class="table-responsive">
+      <table id="usersTable">
+     <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Contraseña</th>
+            <th>Rol</th>
+            <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="usersTableBody">
+    </tbody>
+</table>
+    </div>
+  </main>
+
+  <script src="Script/api.js"></script>
+  <script src="Script/GestorDeCuentas.js"></script>
+</body>
+</html>

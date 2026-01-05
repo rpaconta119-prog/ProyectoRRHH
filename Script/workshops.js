@@ -36,7 +36,83 @@ const WorkshopModule = (function(){
         console.error("❌ Error guardando talleres:", error);
     }
   }
+  // --- VISOR DE MATRIZ DE ASISTENCIA ---
+  async function showAttendanceMatrix(id) {
+    const w = workshops.find(x => x.id === id);
+    if (!w) return alert('Taller no encontrado');
 
+    const ppl = await getPeople();
+    
+    // 1. Obtener todas las fechas registradas y ordenarlas
+    const dates = Object.keys(w.attendanceLog || {}).sort();
+    
+    if (dates.length === 0) return alert("Aún no se ha tomado asistencia en ninguna fecha para este taller.");
+
+    // 2. Construir Encabezado (Fechas)
+    let headHtml = '<tr><th style="z-index:10;">Alumno / Fecha</th>';
+    dates.forEach(dateStr => {
+        // Formatear fecha: 2025-12-29 -> 29/12
+        const parts = dateStr.split('-');
+        const shortDate = `${parts[2]}/${parts[1]}`;
+        headHtml += `<th>${shortDate}</th>`;
+    });
+    headHtml += '<th>% Total</th></tr>';
+    document.getElementById('attGridHead').innerHTML = headHtml;
+
+    // 3. Construir Cuerpo (Filas de Alumnos)
+    let bodyHtml = '';
+    
+    (w.attendees || []).forEach(att => {
+        const p = ppl.find(x => x.id === att.id) || { name: 'Desconocido', legajo: '' };
+        
+        let rowHtml = `<tr>
+            <td>
+                <div>${p.name}</div>
+                <div style="font-size:10px; color:#888;">${p.legajo || '-'}</div>
+            </td>`;
+        
+        let presentCount = 0;
+
+        // Recorrer cada fecha para este alumno
+        dates.forEach(dateStr => {
+            const dayList = w.attendanceLog[dateStr] || [];
+            const isPresent = dayList.includes(att.id);
+            
+            if (isPresent) {
+                presentCount++;
+                rowHtml += `<td class="cell-present">P</td>`; // O usa '✔'
+            } else {
+                rowHtml += `<td class="cell-absent">A</td>`; // O usa '✘'
+            }
+        });
+
+        // Columna de Porcentaje
+        const totalDates = dates.length;
+        const percent = totalDates > 0 ? Math.round((presentCount / totalDates) * 100) : 0;
+        const color = percent < 60 ? 'red' : 'green';
+        
+        rowHtml += `<td style="font-weight:bold; color:${color}">${percent}%</td>`;
+        rowHtml += '</tr>';
+        
+        bodyHtml += rowHtml;
+    });
+
+    document.getElementById('attGridBody').innerHTML = bodyHtml;
+
+    // 4. Mostrar Modal
+    const modal = document.getElementById('attendanceModal');
+    if(modal) {
+        document.getElementById('attModalTitle').textContent = w.name;
+        document.getElementById('attModalSubtitle').textContent = `Registro de ${dates.length} clases tomadas`;
+        
+        modal.classList.remove('hidden');
+        
+        // Configurar botón cerrar
+        document.getElementById('attClose').onclick = () => {
+            modal.classList.add('hidden');
+        };
+    }
+  }
   // --- Fechas / Calendario utilities ---
   let calendar = null;
 
@@ -81,7 +157,7 @@ const WorkshopModule = (function(){
       events: [],
       eventClick: function(info){
         const wid = info.event.extendedProps?.workshopId || info.event.id;
-        if (typeof renderSidePanel === 'function') renderSidePanel(wid); else exportReport(wid);
+        exportReport(wid);
       },
       eventDidMount: function(info) {
         info.el.style.cursor = 'pointer';
@@ -165,7 +241,27 @@ const WorkshopModule = (function(){
       <div style="margin-top:8px" class="no-print"><input type="file" onchange="WorkshopModule.uploadDoc('${w.id}', this.files[0])"></div>
     `;
   }
+  // --- GESTIÓN DE ASISTENCIAS (NUEVO) ---
+  async function saveAttendance(workshopId, dateKey) {
+    const w = workshops.find(x => x.id === workshopId);
+    if (!w) return;
 
+    // 1. Obtener quiénes están marcados en el DOM
+    const checks = document.querySelectorAll('.attendance-check');
+    const presentIds = Array.from(checks).filter(c => c.checked).map(c => c.value);
+
+    // 2. Inicializar estructura si no existe
+    if (!w.attendanceLog) w.attendanceLog = {};
+
+    // 3. Guardar array de IDs presentes para esa fecha
+    w.attendanceLog[dateKey] = presentIds;
+
+    await save();
+    
+    // 4. Refrescar el reporte para ver los nuevos %
+    exportReport(workshopId);
+    alert('Asistencia guardada para el día: ' + dateKey);
+  }
   // --- Gestión de Bitácora ---
   async function addLog(workshopId, text, isFeatured = false) {
     if (!text || !text.trim()) return alert('Escribe un comentario para la bitácora.');
@@ -357,29 +453,54 @@ const WorkshopModule = (function(){
   }
 
   // --- Reporte Detallado ---
+  // --- Reporte Detallado CON ASISTENCIA ---
+  // --- Reporte Detallado (CORREGIDO: ASISTENCIA + BITÁCORA COMPLETA) ---
   async function exportReport(id){
     const w = workshops.find(x=>x.id===id);
     if(!w) return alert('Taller no encontrado');
     
-    const ppl = await getPeople(); // Personas async
-    
+    const ppl = await getPeople(); 
     const user = JSON.parse(localStorage.getItem('hr_current_user'))?.user || 'Sistema';
     const generated = new Date().toLocaleString();
+    
+    // --- LÓGICA DE ASISTENCIA ---
+    const totalDaysRecorded = w.attendanceLog ? Object.keys(w.attendanceLog).length : 0;
+    const todayISO = new Date().toISOString().slice(0,10); 
 
-    // Helper para sector
     const getSectorName = (sid) => {
-        if(window.sectors){
-            return window.sectors.find(s=>s.id===sid)?.name || sid || '-';
-        }
+        if(window.sectors) return window.sectors.find(s=>s.id===sid)?.name || sid || '-';
         return sid || '-';
     };
 
+    // GENERAR TABLA DE ASISTENTES
     const rows = (w.attendees||[]).map((a,i) => {
       const p = ppl.find(pp => pp.id === a.id) || {};
       const sectorName = getSectorName(p.sectorId);
-      return `<tr><td>${i+1}</td><td>${p.name || a.name}</td><td>${p.legajo || ''}</td><td>${p.cuil || ''}</td><td>${sectorName}</td></tr>`;
+      
+      let presentCount = 0;
+      if (w.attendanceLog) {
+         Object.values(w.attendanceLog).forEach(dayList => {
+             if (dayList.includes(p.id)) presentCount++;
+         });
+      }
+      const percentage = totalDaysRecorded > 0 ? Math.round((presentCount / totalDaysRecorded) * 100) : 0;
+      const color = percentage < 50 && totalDaysRecorded > 0 ? 'red' : 'green';
+
+      return `
+        <tr>
+            <td>${i+1}</td>
+            <td><strong>${p.name || a.name}</strong><br><small class="muted">${sectorName}</small></td>
+            <td style="text-align:center;">
+                <span style="font-size:14px; font-weight:bold; color:${color}">${presentCount} / ${totalDaysRecorded}</span>
+                <div style="font-size:10px; color:#666">(${percentage}%)</div>
+            </td>
+            <td class="no-print" style="text-align:center;">
+                <input type="checkbox" class="attendance-check" value="${p.id}" style="transform: scale(1.5); cursor:pointer;">
+            </td>
+        </tr>`;
     }).join('');
 
+    // --- RESTAURADO: BITÁCORA COMPLETA (Con eliminar y destacado) ---
     const logsHtml = (w.logs || []).map(l => `
       <div style="border-left: 4px solid ${l.featured ? '#f1c40f' : '#3498db'}; background: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 4px; position:relative;">
         <div style="font-size:11px; color:#666; display:flex; justify-content:space-between;">
@@ -389,6 +510,7 @@ const WorkshopModule = (function(){
         <p style="margin: 5px 0 0; font-size: 14px;">${l.featured ? '⭐ ' : ''}${l.content}</p>
       </div>`).join('');
 
+    // --- RESTAURADO: DOCUMENTOS (Con descargar y eliminar) ---
     const docsHtml = (w.docs || []).map(d => `
       <div style="display:flex; justify-content:space-between; align-items:center; background:#eee; padding:5px 10px; margin-bottom:5px; border-radius:4px; font-size:12px;">
         <span>📄 ${d.name} <small class="muted">(${formatDateTime(d.date)})</small></span>
@@ -401,50 +523,107 @@ const WorkshopModule = (function(){
     const bodyHtml = `
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
         <img src="Assets/LOGO.png" style="height:48px;object-fit:contain;" onerror="this.style.display='none'"/>
-        <div><h2 style="margin:0">Informe: ${w.name}</h2><div style="color:#666;font-size:13px">Instructor: ${w.instructor||'-'} • Fecha: ${formatDateTime(w.start)}</div></div>
-      </div>
-      <div style="display:grid; grid-template-columns: 1.6fr 1fr; gap:20px;">
         <div>
-          <h4>Asistentes (${(w.attendees||[]).length}) <button class="btn no-print" onclick="WorkshopModule.assign('${w.id}')" style="margin-left:10px">+ Gestionar</button></h4>
-          <table style="width:100%;border-collapse:collapse;font-size:12px;">
-            <thead><tr style="background:#f2f2f2"><th>#</th><th>Nombre</th><th>Legajo</th><th>CUIL</th><th>Sector</th></tr></thead>
-            <tbody>${rows || '<tr><td colspan="5" style="text-align:center;">Sin asistentes</td></tr>'}</tbody>
-          </table>
+            <h2 style="margin:0">Gestión: ${w.name}</h2>
+            <div style="color:#666;font-size:13px">Instructor: ${w.instructor||'-'}</div>
         </div>
-        <div>
-          <h4>Bitácora del Taller</h4>
+      </div>
+
+      <div class="report-grid-layout" style="display:grid; grid-template-columns: 1.5fr 1fr; gap:20px;">
+        
+        <div class="report-col">
+          
+          <div style="background: #eef5ff; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #d0e1f9;">
+            <h4 style="margin:0 0 10px 0;">📋 Control de Asistencia</h4>
+            
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+              <label>Fecha: <input type="date" id="attendanceDate" value="${todayISO}"></label>
+              <button class="btn success small" onclick="WorkshopModule.saveAttendance('${w.id}', document.getElementById('attendanceDate').value)">Guardar</button>
+            </div>
+            
+            <button class="btn" style="width:100%; border:1px solid #ccc; background:white; color:#333;" onclick="WorkshopModule.showMatrix('${w.id}')">Ver Planilla Completa</button>
+            
+            <p style="font-size:11px; margin: 5px 0 0; color:#666;">Selecciona la fecha, tilda a los presentes y guarda.</p>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4>Nómina de Personal (${(w.attendees||[]).length})</h4>
+            <button class="btn small no-print" onclick="WorkshopModule.assign('${w.id}')">Gestionar Personal</button>
+          </div>
+
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="background:#f2f2f2; text-align:left;">
+                    <th style="padding:8px;">#</th>
+                    <th style="padding:8px;">Personal</th>
+                    <th style="padding:8px; text-align:center;">Historial</th>
+                    <th style="padding:8px; text-align:center;" class="no-print">Presente</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="4" style="text-align:center;">Sin asistentes inscritos</td></tr>'}</tbody>
+            </table>
+          </div>
+
+        </div> <div class="report-col">
+          <h4>Bitácora y Notas</h4>
+          
           <div class="no-print" style="margin-bottom:15px; background:#f0f7ff; padding:10px; border-radius:8px;">
-            <textarea id="logInput" placeholder="¿Cómo estuvo el taller hoy?" style="width:100%; height:50px; margin-bottom:5px;"></textarea>
+            <textarea id="logInput" placeholder="Nota rápida..." style="width:100%; height:50px; margin-bottom:5px;"></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <label style="font-size:12px;"><input type="checkbox" id="logFeatured"> Importante</label>
               <button class="btn" onclick="WorkshopModule.addLog('${w.id}', document.getElementById('logInput').value, document.getElementById('logFeatured').checked)">Guardar</button>
             </div>
           </div>
-          <div style="max-height:250px; overflow-y:auto;">${logsHtml || '<p class="muted">Sin notas.</p>'}</div>
-          <h4 style="margin-top:15px;">Documentos Adjuntos</h4>
-          <input type="file" class="no-print" style="font-size:11px; width:100%;" onchange="WorkshopModule.uploadDoc('${w.id}', this.files[0])">
-          <div style="margin-top:10px;">${docsHtml || '<p class="muted">Sin archivos.</p>'}</div>
+
+          <div style="max-height:300px; overflow-y:auto; margin-bottom:20px;">
+            ${logsHtml || '<p class="muted">Sin notas registradas.</p>'}
+          </div>
+
+          <h4>Documentos</h4>
+          <input type="file" class="no-print" onchange="WorkshopModule.uploadDoc('${w.id}', this.files[0])">
+          <div style="margin-top:10px;">${docsHtml || '<p class="muted">Sin documentos.</p>'}</div>
         </div>
+
       </div>
+      
       <p style="color:#666;font-size:11px;margin-top:20px; border-top:1px solid #eee;">Generado por ${user} • ${generated}</p>
     `;
 
     const modal = document.getElementById('reportModal');
     if (modal) {
-      document.getElementById('reportTitle').textContent = `Informe Detallado`;
+      document.getElementById('reportTitle').textContent = `Informe: ${w.name}`;
       document.getElementById('reportBody').innerHTML = bodyHtml;
       modal.classList.remove('hidden');
       document.body.classList.add('modal-open');
-      document.getElementById('reportPrint').onclick = () => { window.print(); };
-      document.getElementById('reportDownload').onclick = () => {
-        const content = '<html><body>' + document.getElementById('reportBody').innerHTML + '</body></html>';
-        const blob = new Blob([content], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `${w.name.replace(/\s+/g,'_')}.doc`; a.click();
-      };
-      document.getElementById('reportClose').onclick = () => { modal.classList.add('hidden'); document.body.classList.remove('modal-open'); };
+      
+      const btnPrint = document.getElementById('reportPrint');
+        if (btnPrint) {
+            btnPrint.onclick = () => { window.print(); };
+        }
+
+        // Botón Descargar (Solo asigna si existe el elemento)
+        const btnDownload = document.getElementById('reportDownload');
+        if (btnDownload) {
+            btnDownload.onclick = () => {
+                const content = '<html><body>' + document.getElementById('reportBody').innerHTML + '</body></html>';
+                const blob = new Blob([content], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = `${w.name.replace(/\s+/g,'_')}.doc`; a.click();
+            };
+        }
+
+        // Botón CERRAR (Este es el importante que te fallaba)
+        const btnClose = document.getElementById('reportClose');
+        if (btnClose) {
+            btnClose.onclick = () => { 
+                modal.classList.add('hidden'); 
+                document.body.classList.remove('modal-open'); 
+            };
     }
   }
+}
+
 
   function renderList(containerId){
     const ids = containerId ? [containerId] : ['workshopsList','workshopList'];
@@ -560,7 +739,7 @@ const WorkshopModule = (function(){
   
   return { 
     addLog, removeLog, uploadDoc, removeDoc, downloadDoc,
-    exportReport, assign: openAssign, renderAssignList, renderSidePanel, remove, getAll: () => workshops 
+    exportReport,saveAttendance, assign: openAssign, renderAssignList, renderSidePanel, remove,showMatrix: showAttendanceMatrix, getAll: () => workshops 
   };
 })();
 

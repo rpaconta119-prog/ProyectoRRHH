@@ -510,3 +510,280 @@ body.modal-open{ overflow: hidden; }
   /* Ajuste de Modales */
   .modal-content { width: 95%; padding: 15px; margin: 10px; max-height: 85vh; }
 }
+/* Estilos específicos para la tabla del gestor */
+    .container { max-width: 1000px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background-color: #f4f4f4; }
+    
+    /* Estados visuales */
+    .status-ok { color: green; font-weight: bold; }
+    .status-pending { color: orange; font-weight: bold; }
+    .role-admin { color: #007bff; font-weight: bold; }
+
+    /* Botones de acción */
+    .btn-action { padding: 5px 10px; cursor: pointer; border: none; border-radius: 4px; color: white; margin-right: 5px; }
+    .btn-approve { background-color: #28a745; }
+    .btn-revoke { background-color: #ffc107; color: black; }
+    .btn-delete { background-color: #dc3545; }
+    .btn-disabled { background-color: #ccc; cursor: not-allowed; }
+    /* Asegura que el modal de Asignar (que es más pequeño) quede SIEMPRE encima del Reporte */
+#assignModal {
+    z-index: 2000 !important; 
+}
+
+/* El reporte se queda en un nivel intermedio */
+#reportModal {
+    z-index: 1050 !important;
+}
+@media (max-width: 768px) {
+    /* 1. Cambiar la dirección a Columna (uno abajo del otro) */
+    #section-workshops .section-inner {
+        flex-direction: column !important;
+        display: flex !important;
+    }
+
+    /* 2. Limitar la altura del calendario en el celular */
+    /* Si no hacemos esto, el calendario ocupa toda la pantalla y hay que scrollear mucho */
+    #calendar {
+        height: 50vh !important; /* Ocupa la mitad de la pantalla */
+        min-height: 400px;       /* Mínimo para que sea legible */
+        margin-bottom: 20px;
+    }
+
+    /* 3. Asegurar que el panel lateral o lista ocupe el ancho completo abajo */
+    #sideWorkshop, .panel {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+/* Estilos para la Matriz de Asistencia */
+.att-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.att-grid-table th, 
+.att-grid-table td {
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+}
+
+/* Fijar la primera columna (Nombres) para que no se mueva al scrollear */
+.att-grid-table th:first-child,
+.att-grid-table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #f9f9f9;
+    z-index: 2;
+    text-align: left;
+    font-weight: bold;
+    min-width: 150px;
+    border-right: 2px solid #ccc;
+}
+.att-grid-table th:first-child {
+    z-index: 3; /* Esquina superior izquierda siempre visible */
+    background-color: #eee;
+}
+
+/* Encabezados de fecha */
+.att-grid-table th {
+    background-color: #f1f1f1;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* Celdas de estado */
+.cell-present {
+    background-color: #e6fffa;
+    color: #28a745;
+    font-weight: bold;
+}
+.cell-absent {
+    background-color: #fff5f5;
+    color: #dc3545;
+    font-size: 10px;
+}
+/* --- LAYOUT RESPONSIVE DE TALLERES --- */
+/* =========================================
+   ESTILOS ESPECÍFICOS PARA TALLERES (GRID)
+   ========================================= */
+
+/* El contenedor de la grilla */
+.workshop-grid {
+    display: grid;
+    /* Esto hace la magia: crea tantas columnas como entren, de mínimo 300px */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 20px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* Forzamos estilo a las tarjetas que genera el JS */
+/* OJO: El JS genera divs con clase "panel", aquí los re-estilizamos para que parezcan tarjetas */
+#workshopList .panel {
+    margin: 0 !important; /* Quitamos margenes viejos */
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #fff; /* Fondo blanco para que se vea */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%; /* Para que todas midan lo mismo */
+}
+
+/* Efecto al pasar el mouse */
+#workshopList .panel:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+/* Ajuste botones dentro de la tarjeta */
+#workshopList .panel button {
+    margin-top: 5px;
+    width: 100%; /* Botones anchos para fácil click en celular */
+    margin-bottom: 5px;
+}
+
+/* RESPONSIVE: Ajustes finos para celular */
+@media (max-width: 768px) {
+    .content {
+        padding: 10px !important; /* Menos borde en celular */
+    }
+    
+    #calendar {
+        min-height: 400px !important; /* Altura segura para celular */
+    }
+
+    .workshop-grid {
+        grid-template-columns: 1fr; /* Una sola columna en celular */
+    }
+}
+/* --- Estilos para la Barra Lateral (Sidebar) --- */
+.nav-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #8898aa;
+    margin: 20px 0 10px 15px;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.nav-item {
+    display: flex; /* Alinea icono y texto */
+    align-items: center;
+    padding: 12px 15px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-radius: 6px;
+    margin-bottom: 4px;
+}
+
+.nav-item i {
+    width: 24px; /* Ancho fijo para que los textos se alineen verticalmente */
+    text-align: center;
+    margin-right: 10px;
+    color: #718096; /* Color del icono un poco más suave */
+}
+
+.nav-item:hover {
+    background-color: #f7fafc;
+    color: #2d3748;
+    transform: translateX(5px); /* Efecto sutil de movimiento */
+}
+
+.nav-item:hover i {
+    color: #4299e1; /* Color azul al pasar el mouse */
+}
+
+/* --- Estilos para las Tarjetas del Dashboard (Stat Cards) --- */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px); /* Se levanta un poco al pasar el mouse */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-top: 5px;
+}
+
+/* Colores específicos para las tarjetas */
+.stat-card.blue .stat-icon { background-color: #ebf8ff; color: #4299e1; }
+.stat-card.green .stat-icon { background-color: #f0fff4; color: #48bb78; }
+.stat-card.orange .stat-icon { background-color: #fffaf0; color: #ed8936; }
+
+/* Estilo para la lista de actividad */
+.activity-list {
+    max-height: 400px; 
+    overflow-y: auto; 
+    border: 1px solid #edf2f7; 
+    border-radius: 8px;
+    padding: 0;
+}
+.sidebar {
+    /* ... tus estilos existentes ... */
+    
+    /* AGREGA ESTO: */
+    position: fixed; /* Para que se quede quieta */
+    top: 0; 
+    bottom: 0; /* Ocupa hasta abajo */
+    height: 100vh; /* Altura total de la pantalla */
+    overflow-y: auto; /* ESTO ES LA CLAVE: permite scroll si no entra el contenido */
+    z-index: 100;
+}
+
+/* Opcional: Para que la barra de scroll de la izquierda sea finita y bonita */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
