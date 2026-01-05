@@ -1,22 +1,122 @@
-<html lang="en">
+<!doctype html>
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Calendario de Licencias - Recursos Humanos</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+  <style>
+    /* Ajustes para que el calendario se vea integrado */
+    .fc-toolbar-title { font-size: 1.2rem !important; text-transform: capitalize; }
+    .fc-button { font-size: 0.85rem !important; }
+    .fc-event { cursor: pointer; border:none; }
+    /* Colores para los días fin de semana */
+    .fc-day-sat, .fc-day-sun { background-color: #fafafa; }
+  </style>
+
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-left">
       <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
-      <h1>Calendario de Licencias</h1><!-- Título de la página -->
+      <h1><i class="fa-solid fa-calendar-check"></i> Gestión de Licencias</h1>
     </div>
-    <div class="topbar-right"><!-- Botones de navegación -->
-      <a class="btn" href="index.html">Volver</a>
-      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+    <div class="topbar-right">
+      <a class="btn" href="index.html"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+      <button id="btn-logout" class="btn" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
     </div>
   </header>
-  <body>
-  </body>
+
+  <div class="app">
+
+    <main class="content">
+      <section class="panel-grid">
+        
+        <div class="panel form-panel">
+          <h2><i class="fa-solid fa-calendar-plus"></i> Nueva Solicitud</h2>
+          <p class="muted">Registrar vacaciones o licencias especiales.</p>
+          
+          <form id="leaveForm">
+            <label>Empleado</label>
+            <select id="employeeSelect" required>
+              <option value="">Cargando personal...</option>
+            </select>
+
+            <div id="vacationBalanceCard" style="background:#f0f9ff; border:1px solid #bae6fd; padding:15px; border-radius:8px; margin:15px 0; display:none;">
+               <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <strong style="color:#0369a1;">🏖️ Saldo de Vacaciones</strong>
+                  <span id="txtTenure" style="font-size:0.8em; color:#0284c7;">Calculando...</span>
+               </div>
+               <div style="margin-top:10px;">
+                  <div style="display:flex; justify-content:space-between; font-size:0.9em; margin-bottom:5px;">
+                      <span>Días tomados: <b id="daysUsed">0</b></span>
+                      <span>Total anual: <b id="daysTotal">14</b></span>
+                  </div>
+                  <div style="background:#e0f2fe; height:8px; border-radius:4px; overflow:hidden;">
+                      <div id="progressBar" style="width:0%; background:#0ea5e9; height:100%; transition:width 0.3s;"></div>
+                  </div>
+                  <div id="msgBalance" style="font-size:0.8em; color:#ef4444; margin-top:5px; font-weight:bold; display:none;">
+                      ⚠️ Sin días disponibles
+                  </div>
+               </div>
+            </div>
+
+            <label>Tipo de Solicitud</label>
+            <select id="leaveType" required>
+              <option value="Vacaciones">🏖️ Vacaciones</option>
+              <option value="Enfermedad">grap Enfermedad</option>
+              <option value="Estudio">🎓 Examen / Estudio</option>
+              <option value="Personal">🏠 Motivos Personales</option>
+              <option value="Otra">📝 Otra</option>
+            </select>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <label>Desde <input type="date" id="dateStart" required /></label>
+                <label>Hasta <input type="date" id="dateEnd" required /></label>
+            </div>
+            
+            <div style="text-align:right; margin-bottom:10px;">
+                <small class="muted">Duración: <b id="daysCount">0</b> días</small>
+            </div>
+
+            <label>Justificación / Detalle</label>
+            <textarea id="leaveReason" rows="3" placeholder="Obligatorio para licencias que no sean vacaciones..."></textarea>
+
+            <button type="submit" class="btn primary" style="width:100%; margin-top:10px;">
+                <i class="fa-solid fa-check"></i> Confirmar Solicitud
+            </button>
+          </form>
+        </div>
+
+        <div class="panel list-panel">
+          <h2><i class="fa-solid fa-clock-rotate-left"></i> Historial de Licencias</h2>
+          
+          <div class="search-row">
+            <input id="searchLeave" placeholder="Buscar por nombre..." />
+            <select id="filterType">
+                <option value="">Todos los tipos</option>
+                <option value="Vacaciones">Vacaciones</option>
+                <option value="Enfermedad">Enfermedad</option>
+            </select>
+          </div>
+
+          <div id="leavesContainer" style="margin-top:15px; max-height:600px; overflow-y:auto;">
+              <p class="muted">Cargando historial...</p>
+          </div>
+        </div>
+        
+      </section>
+      <div class="panel" style="margin-top: 20px;">
+          <h2 style="margin-bottom: 20px;"><i class="fa-regular fa-calendar"></i> Calendario Visual</h2>
+          <div id="calendar"></div>
+      </div>
+    </main>
+  </div>
+
   <script src="Script/api.js"></script>
+  <script src="Script/auth.js"></script>
+  <script src="Script/Calendario de Licencias.js"></script> </body>
 </html>

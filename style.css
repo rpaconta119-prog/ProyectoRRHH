@@ -175,8 +175,7 @@ label input, label textarea, label select{width:100%;padding:10px;border-radius:
 .panel { transition: transform .12s ease, box-shadow .12s ease; }
 .panel:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(11,74,166,0.06); }
 
-.nav .nav-item { transition: background .12s ease, transform .12s ease; }
-.nav .nav-item:hover { background: rgba(255,255,255,0.04); transform: translateX(4px); }
+
 
 .content-section { padding: 10px 0; }
 .section-inner { max-width: 1200px; margin: 0 auto; padding: 0 12px; }
@@ -786,4 +785,51 @@ body.modal-open{ overflow: hidden; }
 .sidebar::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
+}
+/* --- ESTILOS MODAL CORREGIDOS (Versión Fuerte) --- */
+
+/* El encabezado del modal que contiene avatar y nombre */
+.detail-header {
+    display: flex !important;
+    align-items: center !important;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    width: 100%; /* Asegura que ocupe el ancho */
+}
+
+/* El círculo contenedor del avatar */
+.detail-avatar {
+    /* Forzamos dimensiones fijas con !important */
+    width: 80px !important;
+    height: 80px !important;
+    min-width: 80px !important; /* Evita que se achique */
+    min-height: 80px !important;
+    
+    border-radius: 50% !important; /* Círculo perfecto */
+    background-color: #edf2f7;
+    border: 3px solid white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    
+    /* Para centrar el icono si no hay foto */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    
+    /* Estilos del icono por defecto */
+    font-size: 2.5rem;
+    color: #cbd5e0;
+    
+    margin-right: 20px !important; /* Espacio con el texto */
+    overflow: hidden !important;   /* Recorta lo que sobre */
+    flex-shrink: 0 !important;     /* CRUCIAL: Evita que flexbox lo aplaste */
+}
+
+/* Estilos para la IMAGEN que inserta JavaScript dentro del círculo */
+.detail-avatar img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* Cubre todo el círculo sin deformar */
+    display: block;
+    border-radius: 50%; /* Asegura que la img también sea redonda */
 }

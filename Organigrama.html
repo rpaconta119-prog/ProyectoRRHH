@@ -1,38 +1,72 @@
-<html>
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Organigrama - Recursos Humanos</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <link rel="stylesheet" href="style.css">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/orgchart/3.1.1/css/jquery.orgchart.min.css">
+  
+  <style>
+    /* Pequeño ajuste para que el organigrama tenga fondo de cuadrícula sutil */
+    #chart-container {
+        background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+        background-size: 20px 20px;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+    .orgchart { background: transparent !important; }
+  </style>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-left">
       <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
-      <h1>Organigrama</h1><!-- Título de la página -->
+      <h1><i class="fa-solid fa-sitemap"></i> Organigrama</h1>
     </div>
-    <div class="topbar-right"><!-- Botones de navegación -->
-      <a class="btn" href="index.html">Volver</a>
-      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
+    <div class="topbar-right">
+      <a class="btn" href="index.html">
+        <i class="fa-solid fa-arrow-left"></i> Volver
+      </a>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
     </div>
   </header>
 
-  <main class="content">
-    <!-- Contenido del organigrama -->
-     <div>
-        <h2>Organigrama de la Empresa</h2>
-        <div class="search-container" style="text-align: center; margin-bottom: 20px;">
-        <input type="text" id="key-word" placeholder="Buscar empleado..." style="padding: 10px; width: 300px; border-radius: 5px; border: 1px solid #ccc;">
-        <button id="btn-search" class="btn" style="background-color: #3498db; color: white;">Buscar</button>
-        <button id="btn-clear" class="btn" style="background-color: #95a5a6; color: white;">Limpiar</button>
-        </div>
-        <div id="chart-container" style="overflow: auto; text-align: center;">
+  <main class="content" style="padding: 20px;">
+    <div class="panel" style="min-height: 80vh; display:flex; flex-direction:column;">
+       
+       <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+           <h2 style="margin:0; display:flex; align-items:center; gap:10px;">
+               <i class="fa-solid fa-network-wired" style="color:#4a5568;"></i> 
+               Estructura Organizacional
+           </h2>
+           <p class="muted" style="margin:5px 0 0 0;">Visualiza la jerarquía y relaciones de la empresa.</p>
+       </div>
 
-        </div>
-     </div>
+       <div class="search-container" style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
+          <div style="position:relative; width: 300px;">
+             <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#aaa;"></i>
+             <input type="text" id="key-word" placeholder="Buscar empleado..." style="padding-left:35px; width:100%; box-sizing:border-box; height: 40px; border: 1px solid #cbd5e0; border-radius: 6px;">
+          </div>
+          
+          <button id="btn-search" class="btn primary">
+              <i class="fa-solid fa-magnifying-glass"></i> Buscar
+          </button>
+          <button id="btn-clear" class="btn">
+              <i class="fa-solid fa-eraser"></i> Limpiar
+          </button>
+       </div>
+
+       <div id="chart-container" style="flex: 1; overflow: auto; text-align: center; position: relative;">
+            </div>
+    </div>
   </main>
   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -40,7 +74,5 @@
   <script src="Script/api.js"></script>
   <script src="Script/Organigrama.js"></script>
   <script src="Script/auth.js"></script>
-  
-
 </body>
 </html>

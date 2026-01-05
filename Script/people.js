@@ -162,10 +162,18 @@ window.viewPerson = function(id) {
     const sectorOptions = allSectors.map(s => `<option value="${s.id}" ${p.sectorId === s.id ? 'selected' : ''}>${s.name}</option>`).join('');
     document.getElementById('detailSector').innerHTML = `<select id="mod_sectorId" style="border:none; background:transparent; font-weight:bold; color:#666;"><option value="">-- Sin Sector --</option>${sectorOptions}</select>`;
 
+    // --- CORRECCIÓN DE IMAGEN AQUÍ ---
     const avatar = document.getElementById('detailAvatar');
-    avatar.style.backgroundImage = p.photoData ? `url(${p.photoData})` : 'none';
-    avatar.textContent = p.photoData ? '' : (p.name ? p.name.charAt(0) : '');
+    avatar.style.backgroundImage = 'none'; // Limpiamos estilos viejos
 
+    if (p.photoData) {
+        // Inyectamos la etiqueta IMG para que el CSS (object-fit) funcione y se vea redonda
+        avatar.innerHTML = `<img src="${p.photoData}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;">`;
+    } else {
+        // Si no hay foto, mostramos la inicial
+        avatar.innerHTML = `<span style="font-size:2.5rem; color:#cbd5e0;">${p.name ? p.name.charAt(0).toUpperCase() : '?'}</span>`;
+    }
+    // --------------------------------
     // --- PESTAÑA 1: DATOS PERSONALES (Expandida) ---
     document.getElementById('detailPersonal').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
