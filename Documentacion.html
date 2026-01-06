@@ -1,23 +1,209 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Documentación - Recursos Humanos</title>
   <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* --- ESTILOS DEL MODAL --- */
+    .modal {
+        display: none; 
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        align-items: center; justify-content: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        height: 85%;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    #previewContainer {
+        flex-grow: 1;
+        background: #f1f1f1;
+        border: 1px solid #ccc;
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    #previewContainer iframe, #previewContainer img {
+        width: 100%; height: 100%; object-fit: contain;
+    }
+
+    .close-btn {
+        position: absolute; top: 10px; right: 15px;
+        color: #aaa; font-size: 28px; font-weight: bold;
+        cursor: pointer; z-index: 10;
+    }
+    .close-btn:hover { color: #000; }
+
+    /* --- ESTILOS GENERALES --- */
+    .toolbar {
+      display: flex; gap: 10px; margin-bottom: 20px;
+      align-items: center; background: #f1f3f4;
+      padding: 10px; border-radius: 8px;
+    }
+    
+    .btn-icon {
+      background: none; border: 1px solid #ccc; border-radius: 4px;
+      cursor: pointer; font-size: 1.2rem; padding: 5px 10px;
+      background-color: white; transition: all 0.2s;
+    }
+    .btn-icon:disabled { opacity: 0.5; cursor: default; }
+
+    .breadcrumbs { flex-grow: 1; font-weight: bold; color: #555; margin-left: 10px; }
+    .breadcrumbs span { cursor: pointer; color: #007bff; }
+    .breadcrumbs span:hover { text-decoration: underline; }
+    
+    .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+    .file-item { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; position: relative; transition: transform 0.2s; }
+    .file-item:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #f9f9f9; transform: translateY(-2px); }
+    .icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+    .file-name { font-size: 0.85rem; word-wrap: break-word; overflow: hidden; text-overflow: ellipsis; }
+    .delete-btn { position: absolute; top: 5px; right: 5px; background: none; border: none; color: #dc3545; cursor: pointer; opacity: 0; font-size: 1.2rem;}
+    .file-item:hover .delete-btn { opacity: 1; }
+    
+    /* --- NUEVO ESTILO BUSCADOR + FILTRO --- */
+    .search-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .search-input { 
+        flex-grow: 1; 
+        padding: 12px; 
+        border: 1px solid #ddd; 
+        border-radius: 8px; 
+        font-size: 1rem; 
+    }
+    .filter-select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+    .file-meta { font-size: 0.75rem; color: #666; margin-top: 5px; }
+    
+    #fileInput { display: none; }
+    /* --- BUSCADOR + FILTRO RESPONSIVE --- */
+    .search-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap; /* Permite que bajen si no hay espacio */
+    }
+
+    .search-input { 
+        flex-grow: 1; /* Ocupa todo el espacio disponible */
+        padding: 12px; 
+        border: 1px solid #ddd; 
+        border-radius: 8px; 
+        font-size: 1rem;
+        min-width: 200px; /* Evita que se haga diminuto */
+    }
+
+    .filter-select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        min-width: 140px; /* Ancho mínimo para que se lea el texto */
+    }
+
+    /* ESTO ES LO QUE LO HACE RESPONSIVE */
+    @media (max-width: 600px) {
+        .search-controls {
+            flex-direction: column; /* En celular, uno abajo del otro */
+            gap: 10px;
+        }
+        
+        .search-input, 
+        .filter-select {
+            width: 100%; /* Ocupan todo el ancho de la pantalla */
+            box-sizing: border-box; /* Para que el padding no rompa el ancho */
+        }
+    }
+  </style>
 </head>
+
 <body>
   <header class="topbar">
     <div class="topbar-left">
       <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
-      <h1>Documentación</h1><!-- Título de la página -->
+      <h1>Centro de Documentación</h1>
     </div>
-    <div class="topbar-right"><!-- Botones de navegación -->
+    <div class="topbar-right">
       <a class="btn" href="index.html">Volver</a>
-      <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
     </div>
   </header>
-  <body>
+
+  <div class="container">
     
-  </body>
+    <div class="toolbar">
+      <button id="btn-atras" class="btn-icon" onclick="navegarAtras()" title="Subir un nivel" disabled>⬅</button>
+
+      <div class="breadcrumbs" id="breadcrumbs">
+        <span onclick="navegarRaiz()">🏠 Inicio</span>
+      </div>
+
+      <button class="btn" onclick="crearCarpeta()" style="background-color: #ffc107; color: #333;">
+        📁 Nueva
+      </button>
+      <button class="btn" onclick="document.getElementById('fileInput').click()" style="background-color: #007bff; color: white;">
+        ☁️ Subir
+      </button>
+      
+      <input type="file" id="fileInput" multiple onchange="procesarSubida(this)">
+    </div>
+
+    <div class="search-controls">
+        <input type="text" id="inputBuscador" class="search-input" placeholder="🔍 Buscar...">
+        <select id="filtroTipo" class="filter-select">
+            <option value="todo">Todo</option>
+            <option value="archivos">Solo Archivos</option>
+            <option value="carpetas">Solo Carpetas</option>
+        </select>
+    </div>
+
+    <div id="grid-contenido" class="file-grid"></div>
+
+  </div>
+
+  <div id="modalPreview" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="cerrarModal()">&times;</span>
+        <h3 id="modalTitle" style="margin: 0;">Previsualización</h3>
+        
+        <div id="previewContainer"></div>
+        
+        <div class="modal-actions" style="text-align: right;">
+            <a id="btnDescargarModal" href="#" download class="btn" style="background: #007bff; color: white; text-decoration: none; padding: 10px 20px; border-radius: 5px;">⬇️ Descargar Original</a>
+        </div>
+    </div>
+  </div>
+
   <script src="Script/api.js"></script>
+  <script src="Script/documentacion.js"></script>
+</body>
 </html>

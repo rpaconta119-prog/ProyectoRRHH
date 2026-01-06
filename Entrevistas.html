@@ -1,23 +1,130 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Entrevistas - Recursos Humanos</title>
   <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* ... Tus estilos anteriores ... */
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 25px; border: 1px solid #e0e0e0; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; color: #333; }
+    .form-group input, .form-group textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    
+    /* Estilo para el área de texto y archivos */
+    .full-width { grid-column: 1 / -1; }
+    textarea { resize: vertical; min-height: 80px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background-color: #f8f9fa; font-weight: bold; }
+  </style>
 </head>
+
 <body>
   <header class="topbar">
     <div class="topbar-left">
       <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
-      <h1>Entrevistas</h1><!-- Título de la página -->
+      <h1>Gestión de Entrevistas</h1>
     </div>
-    <div class="topbar-right"><!-- Botones de navegación -->
+    <div class="topbar-right">
       <a class="btn" href="index.html">Volver</a>
       <button id="btn-logout" class="btn" title="Cerrar sesión">Salir</button>
     </div>
   </header>
-  <body>
-    
-  </body>
+
+  <div class="container">
+
+    <section class="card">
+      <h2 style="margin-top:0;">👤 Nuevo Aspirante</h2>
+      <p style="margin-bottom: 15px; color: #666;">Carga datos, notas de la entrevista y adjunta el CV.</p>
+      
+      <form id="form-aspirante">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label for="nombre">Nombre Completo</label>
+            <input type="text" id="nombre" required placeholder="Ej: Juan Pérez">
+          </div>
+
+          <div class="form-group">
+            <label for="dni">DNI</label>
+            <input type="number" id="dni" required placeholder="Sin puntos">
+          </div>
+
+          <div class="form-group">
+            <label for="cuil">CUIL / CUIT</label>
+            <input type="text" id="cuil" placeholder="Ej: 20-12345678-9">
+          </div>
+
+          <div class="form-group">
+            <label for="fechaNacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="fechaNacimiento" required>
+          </div>
+
+          <div class="form-group">
+            <label for="nacionalidad">Nacionalidad</label>
+            <input type="text" id="nacionalidad" placeholder="Ej: Argentina">
+          </div>
+
+          <div class="form-group">
+            <label for="puesto">Puesto al que aspira</label>
+            <input type="text" id="puesto" required placeholder="Ej: Administrativo">
+          </div>
+
+          <div class="form-group full-width">
+            <label for="observaciones">Observaciones / Notas de Entrevista</label>
+            <textarea id="observaciones" placeholder="Escribe aquí tus impresiones, fortalezas, debilidades..."></textarea>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="archivos">Adjuntar Archivos (CV, Test, etc.)</label>
+            <input type="file" id="archivos" multiple>
+            <small style="color: #666;">Se guardarán en la base de datos.</small>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+          <button type="submit" class="btn" style="background-color: #007bff; color: white; padding: 10px 20px;">
+            Guardar Aspirante
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0;">📋 Lista de Espera</h2>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Identificación</th>
+              <th>Puesto</th>
+              <th>Archivos</th>
+              <th style="text-align: center;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-aspirantes-body">
+            </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
   <script src="Script/api.js"></script>
+  <script src="Script/entrevistas.js"></script>
+
+  <script>
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
 </html>

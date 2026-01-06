@@ -1,0 +1,17 @@
+1° instalar los entornos:
+node.js
+ngrok (Microsoft store)
+
+2° traer el repositorio de GitHub y clonarlo
+
+3° en la carpeta de servidor entrar en la cmd, y ejecutar node server.js
+	(este entorno debe ser seguro si no lo toma hacelo desde el cmd de sistema como admin)
+	(El server se puede cerrar con CTRL + C)
+
+4° una vez abierto abrimos la consola y ejecutamos los siguientes comandos:
+	ngrok config add-authtoken (tu token)
+	ngrok http 3000
+5° y listo tu server estará listo.
+
+
+ 
