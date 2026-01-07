@@ -351,6 +351,7 @@ const WorkshopModule = (function(){
 
   // --- Modals y CRUD ---
   function openWorkshopModal(id){
+    console.log("✅ Botón 'btnNewWorkshop' encontrado. Vinculando click...");
     const modal = document.getElementById('workshopModal');
     if (!modal) return;
     document.getElementById('workshopFormModal').reset();
@@ -625,25 +626,46 @@ const WorkshopModule = (function(){
 }
 
 
-  function renderList(containerId){
-    const ids = containerId ? [containerId] : ['workshopsList','workshopList'];
-    ids.forEach(id => {
-      const el = document.getElementById(id);
+  // Reemplaza la función renderList dentro de Script/workshops.js con esto:
+
+  function renderList(){
+      const el = document.getElementById('workshopList');
       if(!el) return;
+      
+      if(workshops.length === 0) {
+          el.innerHTML = '<p class="muted" style="text-align:center; padding:20px; grid-column: 1/-1;">No hay talleres activos.</p>';
+          return;
+      }
+
       el.innerHTML = workshops.map(w => `
-        <div class="panel" style="padding:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <div>
-            <strong>${w.name}</strong>
-            <div class="muted small">${w.instructor || ''} • ${formatDateTime(w.start)}</div>
-            <div class="muted small">👥 Asistentes: ${(w.attendees||[]).length} | 📝 Notas: ${(w.logs||[]).length}</div>
+          <div class="workshop-card">
+              <div>
+                  <div class="workshop-header">
+                      <span class="workshop-title">${w.name}</span>
+                      <small style="white-space:nowrap; color:#666;">${w.start ? new Date(w.start).toLocaleDateString() : ''}</small>
+                  </div>
+                  <div class="workshop-instructor">
+                      <i class="fa-solid fa-user-tie"></i> ${w.instructor || 'Sin instructor'}
+                  </div>
+                  <div class="muted small" style="margin-top:8px; display:flex; gap:15px;">
+                      <span><i class="fa-solid fa-users"></i> ${w.attendees?.length||0}</span>
+                      <span><i class="fa-solid fa-clipboard"></i> ${w.logs?.length||0}</span>
+                  </div>
+              </div>
+              
+              <div class="workshop-actions">
+                  <button class="btn" onclick="WorkshopModule.exportReport('${w.id}')">
+                    <i class="fa-solid fa-file-lines"></i> Ver Informe
+                  </button>
+                  <button class="btn" style="background:#f8f9fa; border:1px solid #ccc; color:#333;" onclick="WorkshopModule.assign('${w.id}')">
+                    <i class="fa-solid fa-user-plus"></i> Asignar
+                  </button>
+                  <button class="btn danger" onclick="WorkshopModule.remove('${w.id}')">
+                    <i class="fa-solid fa-trash-can"></i> Eliminar
+                  </button>
+              </div>
           </div>
-          <div style="display:flex;gap:5px;">
-            <button class="btn" onclick="WorkshopModule.exportReport('${w.id}')">Informe</button>
-            <button class="btn" onclick="WorkshopModule.assign('${w.id}')">Asignar</button>
-            <button class="btn danger" onclick="WorkshopModule.remove('${w.id}')">Eliminar</button>
-          </div>
-        </div>`).join('');
-    });
+      `).join('');
   }
 
   let currentAssignId = null;

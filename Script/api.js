@@ -7,7 +7,7 @@ console.log("🏠 CARGANDO API EN MODO RED LOCAL (LAN)");
 // ⚠️ IMPORTANTE: CAMBIA ESTO POR LA IP DE TU PC SERVIDOR (La que viste en ipconfig)
 // Mantén el puerto :3000
 const SERVIDOR_IP = '172.22.105.38'; // <--- ¡EDITAR ESTO! (Ej: 192.168.0.12)
-const PUERTO = '3000';
+const PUERTO = '3080';
 const BASE_URL = `http://${SERVIDOR_IP}:${PUERTO}/api`;
 
 // --- SISTEMA DE CACHÉ EN MEMORIA ---

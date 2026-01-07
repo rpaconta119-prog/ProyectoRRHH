@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3080;
 
 app.use(cors());
 // Aumentamos el límite de tamaño para recibir datos grandes
@@ -15,9 +15,9 @@ const DB_PATH = path.join(__dirname, 'db');
 
 app.use(express.static(__dirname));
 
-// Opcional: Para que al entrar a la IP sola, te mande al login o al index
+// Opcional: Para que al entrar a la IP sola, te mande al login
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 // --- HELPER: GUARDAR ---
 const guardarDatos = (archivo, datos, res) => {

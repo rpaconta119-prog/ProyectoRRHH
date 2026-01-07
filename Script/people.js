@@ -44,27 +44,38 @@ const PeopleModule = {
         );
 
         if(filtered.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No se encontraron personas.</div>';
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#666; grid-column: 1/-1;">No se encontraron personas.</div>';
             return;
         }
 
-        container.innerHTML = filtered.map(p => `
-            <div class="person-card">
+        container.innerHTML = filtered.map(p => {
+            // Lógica para decidir qué mostrar en el avatar (Foto o Inicial)
+            let avatarHTML = '';
+            if (p.photoData) {
+                avatarHTML = `<img src="${p.photoData}" alt="${p.name}" class="avatar">`;
+            } else {
+                avatarHTML = `<div class="avatar">${p.name ? p.name.charAt(0).toUpperCase() : '?'}</div>`;
+            }
+
+            return `
+            <div class="person-card" onclick="viewPerson('${p.id}')">
+                
+                ${avatarHTML}
+
                 <div class="card-info">
-                    <div class="avatar-mini" style="${p.photoData ? `background-image:url(${p.photoData});background-size:cover;` : ''}">
-                        ${p.photoData ? '' : (p.name ? p.name.charAt(0) : '?')}
+                    <div class="card-name">${p.name}</div>
+                    <div class="card-meta">
+                        ${this.getSectorName(p)} | Leg: ${p.legajo || '-'}
                     </div>
-                    <div>
-                        <strong>${p.name}</strong>
-                        <div class="small muted">${this.getSectorName(p)} | Leg: ${p.legajo || '-'}</div>
-                        <div style="margin-top:2px; font-size:0.9em;">
-                            ${(p.badges || []).map(b => `<span title="${b.name}">${b.icon}</span>`).join(' ')}
-                        </div>
+                    
+                    <div style="margin-top:5px; font-size:0.85em;">
+                        ${(p.badges || []).map(b => `<span title="${b.name}">${b.icon}</span>`).join(' ')}
                     </div>
+                    
+                    <div class="btn-card-action">Ver / Editar</div>
                 </div>
-                <button class="btn small" onclick="viewPerson('${p.id}')">Ver/Editar</button>
             </div>
-        `).join('');
+        `}).join('');
     }
 };
 
@@ -142,7 +153,7 @@ window.fillForm = function(p) {
 };
 
 // ==========================================
-// FUNCIÓN VIEW PERSON (ACTUALIZADA CON CAMPOS EXTRA)
+// FUNCIÓN VIEW PERSON (CON CAMBIO DE FOTO)
 // ==========================================
 window.viewPerson = function(id) {
     const p = people.find(x => x.id === id);
@@ -155,42 +166,74 @@ window.viewPerson = function(id) {
     
     let displayJerId = p.personJerId || getNextJerId();
 
-    // Render Modal Header
+    // 1. Render Modal Header (Nombre y Sector)
     document.getElementById('detailName').innerHTML = `<input type="text" id="mod_name" value="${p.name}" style="font-size:1.2rem; font-weight:bold; width:100%; border:none; border-bottom:1px solid #ccc;">`;
     
     const allSectors = window.sectors || [];
     const sectorOptions = allSectors.map(s => `<option value="${s.id}" ${p.sectorId === s.id ? 'selected' : ''}>${s.name}</option>`).join('');
     document.getElementById('detailSector').innerHTML = `<select id="mod_sectorId" style="border:none; background:transparent; font-weight:bold; color:#666;"><option value="">-- Sin Sector --</option>${sectorOptions}</select>`;
 
-    // --- CORRECCIÓN DE IMAGEN AQUÍ ---
-    const avatar = document.getElementById('detailAvatar');
-    avatar.style.backgroundImage = 'none'; // Limpiamos estilos viejos
+    // 2. RENDER AVATAR CON LÓGICA DE CAMBIO
+    const renderAvatar = () => {
+        const avatarEl = document.getElementById('detailAvatar');
+        // Overlay html para el efecto hover
+        const overlayHTML = `<div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>`;
+        
+        if (p.photoData) {
+            avatarEl.innerHTML = `<img src="${p.photoData}" style="width:100%; height:100%; object-fit:cover;">${overlayHTML}`;
+        } else {
+            avatarEl.innerHTML = `<span style="font-size:2.5rem;">${p.name ? p.name.charAt(0).toUpperCase() : '?'}</span>${overlayHTML}`;
+        }
+    };
+    renderAvatar(); // Dibujar inicial
 
-    if (p.photoData) {
-        // Inyectamos la etiqueta IMG para que el CSS (object-fit) funcione y se vea redonda
-        avatar.innerHTML = `<img src="${p.photoData}" style="width:100%; height:100%; object-fit:cover; border-radius:50%; display:block;">`;
-    } else {
-        // Si no hay foto, mostramos la inicial
-        avatar.innerHTML = `<span style="font-size:2.5rem; color:#cbd5e0;">${p.name ? p.name.charAt(0).toUpperCase() : '?'}</span>`;
-    }
+    // 3. CONFIGURAR EL CAMBIO DE FOTO
+    const avatarEl = document.getElementById('detailAvatar');
+    const photoInput = document.getElementById('modalPhotoInput');
+
+    // Al hacer click en el circulo, se abre el selector de archivos
+    avatarEl.onclick = () => {
+        photoInput.value = ''; // Limpiar para permitir seleccionar el mismo archivo si hace falta
+        photoInput.click();
+    };
+
+    // Al seleccionar un archivo
+    photoInput.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) return alert("La imagen es muy pesada (>2MB).");
+            
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                // Actualizamos el objeto en memoria
+                p.photoData = evt.target.result;
+                // Redibujamos el avatar en el modal inmediatamente
+                renderAvatar();
+                // (Opcional) Si quieres guardar en el servidor YA MISMO, descomenta esto:
+                // PeopleModule.save(); 
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     // --------------------------------
-    // --- PESTAÑA 1: DATOS PERSONALES (Expandida) ---
+    // --- PESTAÑA 1: DATOS PERSONALES ---
     document.getElementById('detailPersonal').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div><label class="lbl-mini">CUIL/DNI</label><input class="full-w" id="mod_cuil" value="${p.cuil || ''}"></div>
             <div><label class="lbl-mini">Nacimiento</label><input type="date" class="full-w" id="mod_birthDate" value="${p.birthDate || ''}"></div>
-            <div><label class="lbl-mini">Nacionalidad</label><input class="full-w" id="mod_nacionalidad" value="${p.nacionalidad || ''}" placeholder="Ej: Argentina"></div>
+            <div><label class="lbl-mini">Nacionalidad</label><input class="full-w" id="mod_nacionalidad" value="${p.nacionalidad || ''}"></div>
             <div><label class="lbl-mini">Estado Civil</label><input class="full-w" id="mod_maritalStatus" value="${p.maritalStatus || ''}"></div>
             
             <div style="grid-column: span 2;"><label class="lbl-mini">Domicilio</label><input class="full-w" id="mod_address" value="${p.address || ''}"></div>
             
             <div style="grid-column: span 2;">
-                <label class="lbl-mini">🎓 Estudios / Título</label>
-                <textarea class="full-w" id="mod_estudios" rows="2" placeholder="Ej: Abogacía - UNNE">${p.estudios || ''}</textarea>
+                <label class="lbl-mini">🎓 Estudios</label>
+                <textarea class="full-w" id="mod_estudios" rows="1">${p.estudios || ''}</textarea>
             </div>
             <div style="grid-column: span 2;">
-                <label class="lbl-mini">Experiencia Laboral</label>
-                <textarea class="full-w" id="mod_experienciaLaboral" rows="2" placeholder="ESTUDIO JURÍDICO EN POSADAS , MISIONES (2020)">${p.experienciaLaboral || ''}</textarea>
+                <label class="lbl-mini">Experiencia</label>
+                <textarea class="full-w" id="mod_experienciaLaboral" rows="1">${p.experienciaLaboral || ''}</textarea>
             </div>
 
             <div style="grid-column: span 2;"><label class="lbl-mini">Contacto Emergencia</label><input class="full-w" id="mod_emergencyContact" value="${p.emergencyContact || ''}"></div>
@@ -204,34 +247,28 @@ window.viewPerson = function(id) {
 
     const parentHTML = getParentOptionsHTML(p.parent, p.id);
 
-    // --- PESTAÑA 3: DATOS LABORALES (Expandida con Misión y Competencias) ---
+    // --- PESTAÑA 3: DATOS LABORALES ---
     document.getElementById('detailDocs').innerHTML = `
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
             <div><label class="lbl-mini">Legajo</label><input class="full-w" id="mod_legajo" value="${p.legajo || ''}"></div>
             <div><label class="lbl-mini">Categoría</label><input class="full-w" id="mod_categoria" value="${p.categoria || ''}"></div>
-            <div style="grid-column: span 2;"><label class="lbl-mini">Rol / Puesto</label><input class="full-w" id="mod_rol" value="${p.rol || ''}"></div>
+            <div style="grid-column: span 2;"><label class="lbl-mini">Rol</label><input class="full-w" id="mod_rol" value="${p.rol || ''}"></div>
             
             <div><label class="lbl-mini">Área</label><input class="full-w" id="mod_area" value="${p.area || ''}"></div>
             <div><label class="lbl-mini">Coordinador</label><input class="full-w" id="mod_coordinador" value="${p.coordinador || ''}"></div>
             
             <div style="grid-column: span 2; margin-top:5px;">
-                <label class="lbl-mini" style="font-weight:bold; color:#555;">🎯 Misión del Puesto</label>
-                <textarea class="full-w" rows="2" id="mod_mision" placeholder="Propósito principal del cargo...">${p.mision || ''}</textarea>
+                <label class="lbl-mini" style="font-weight:bold;">🎯 Misión</label>
+                <textarea class="full-w" rows="2" id="mod_mision">${p.mision || ''}</textarea>
             </div>
             <div style="grid-column: span 2;">
-                <label class="lbl-mini" style="font-weight:bold; color:#555;">📋 Responsabilidades Clave</label>
-                <textarea class="full-w" rows="3" id="mod_responsabilidades" placeholder="- Tarea 1\n- Tarea 2...">${p.responsabilidades || ''}</textarea>
+                <label class="lbl-mini" style="font-weight:bold;">📋 Responsabilidades</label>
+                <textarea class="full-w" rows="2" id="mod_responsabilidades">${p.responsabilidades || ''}</textarea>
             </div>
 
-            <div style="grid-column: span 2; display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:5px;">
-                <div>
-                    <label class="lbl-mini" style="font-weight:bold;">Competencias Técnicas</label>
-                    <textarea class="full-w" rows="2" id="mod_compTecnicas">${p.compTecnicas || ''}</textarea>
-                </div>
-                <div>
-                    <label class="lbl-mini" style="font-weight:bold;">Competencias Conductuales</label>
-                    <textarea class="full-w" rows="2" id="mod_compConductuales">${p.compConductuales || ''}</textarea>
-                </div>
+            <div style="grid-column: span 2; display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <div><label class="lbl-mini">Comp. Técnicas</label><textarea class="full-w" rows="2" id="mod_compTecnicas">${p.compTecnicas || ''}</textarea></div>
+                <div><label class="lbl-mini">Comp. Conductuales</label><textarea class="full-w" rows="2" id="mod_compConductuales">${p.compConductuales || ''}</textarea></div>
             </div>
             
             <div style="border-top:1px solid #eee; grid-column: span 2; margin-top:5px; padding-top:5px; display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
@@ -242,21 +279,15 @@ window.viewPerson = function(id) {
                 <div style="grid-column: span 2;"><label class="lbl-mini">Info Fiscal</label><input class="full-w" id="mod_taxInfo" value="${p.taxInfo || ''}"></div>
             </div>
 
-            <div style="grid-column: span 2; background:#eef; padding:10px; border-radius:4px; margin-top:5px; border:1px solid #ccd;">
-                <h4 style="margin:0 0 10px 0; color:#333;">🌳 Configuración Organigrama</h4>
+            <div style="grid-column: span 2; background:#eef; padding:10px; border-radius:4px; margin-top:5px;">
+                <h4 style="margin:0 0 5px 0; color:#333; font-size:0.9rem;">🌳 Organigrama</h4>
                 <div style="display:grid; grid-template-columns: 1fr 2fr; gap:10px;">
-                    <div>
-                        <label class="lbl-mini" style="font-weight:bold; color:#0056b3;">ID Nodo</label>
-                        <input type="number" id="mod_personJerId" value="${displayJerId}" class="full-w" style="font-weight:bold; text-align:center;">
-                    </div>
-                    <div>
-                        <label class="lbl-mini" style="font-weight:bold;">Reporta a (Jefe)</label>
-                        <select id="mod_parent" class="full-w">${parentHTML}</select>
-                    </div>
+                    <div><label class="lbl-mini">ID Nodo</label><input type="number" id="mod_personJerId" value="${displayJerId}" class="full-w"></div>
+                    <div><label class="lbl-mini">Jefe</label><select id="mod_parent" class="full-w">${parentHTML}</select></div>
                 </div>
             </div>
         </div>
-        <style>.lbl-mini { font-size:0.8em; color:#666; display:block; } .full-w { width:100%; box-sizing:border-box; }</style>
+        <style>.lbl-mini { font-size:0.8em; color:#666; display:block; margin-bottom:2px; } .full-w { width:100%; box-sizing:border-box; border:1px solid #ddd; padding:4px; border-radius:4px; }</style>
     `;
 
     renderDevelopmentTab(p);
@@ -266,6 +297,7 @@ window.viewPerson = function(id) {
     
     const editBtn = document.getElementById('editFromModal');
     editBtn.textContent = "💾 Guardar Todo";
+    // Nota: savePersonFromModal guardará también la foto porque actualizamos 'p.photoData' en memoria al cambiar el input
     editBtn.onclick = () => { savePersonFromModal(p.id); };
 
     document.getElementById('deleteFromModal').onclick = async () => {

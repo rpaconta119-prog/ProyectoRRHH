@@ -1,0 +1,135 @@
+/* --- 1. MODALES: CAPAS Y ESTILOS --- */
+    
+    /* Z-Index Jerárquico: Asignar > Asistencia > Informe > Nuevo Taller */
+    #workshopModal { z-index: 9999 !important; }
+    #reportModal { z-index: 10000 !important; }
+    #attendanceModal { z-index: 11000 !important; }
+    #assignModal { z-index: 12000 !important; }
+
+    /* Modal Base (Centrado y Oscuro) */
+    .modal {
+        display: flex !important;
+        position: fixed;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5); /* Fondo oscuro */
+        align-items: center; justify-content: center;
+        opacity: 1; transition: opacity 0.2s;
+    }
+    .modal.hidden {
+        display: none !important; opacity: 0; pointer-events: none;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        width: 90%; /* Responsivo: 90% en móvil */
+        max-width: 550px; /* Tope en PC */
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        position: relative;
+        max-height: 90vh; /* Scroll si es muy alto */
+        overflow-y: auto;
+    }
+
+    /* Encabezado Azul de Modales */
+    .modal-header-custom {
+        background: linear-gradient(90deg, #0b4aa6, #083a82);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px 8px 0 0;
+        display: flex; justify-content: space-between; align-items: center;
+        margin: -25px -25px 20px -25px; /* Cubre bordes */
+    }
+    .modal-header-custom h3 { margin: 0; font-size: 1.1rem; }
+    .modal-close-btn { color: white; background: none; border: none; font-size: 1.5rem; cursor: pointer; opacity: 0.8; }
+    
+    /* Botón Verde Guardar */
+    .btn-success {
+        background-color: #28a745 !important; color: white !important; border: none;
+        box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+    }
+    .btn-success:hover { background-color: #218838 !important; transform: translateY(-2px); }
+
+
+    /* --- 2. CALENDARIO RESPONSIVO --- */
+    
+    /* Contenedor del Título y Botón "Nuevo" */
+    .calendar-header-panel {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 15px; 
+        flex-wrap: wrap; /* CRUCIAL: Permite que bajen si no caben */
+        gap: 15px;
+    }
+    .calendar-header-panel h2 { margin: 0; min-width: 140px; }
+    
+    /* FullCalendar Ajustes */
+    .fc .fc-toolbar {
+        flex-wrap: wrap; /* Botones del calendario bajan en móvil */
+        gap: 8px;
+        font-size: 0.85rem; /* Letra un poco más chica en general */
+    }
+    .fc-toolbar-title { font-size: 1.2em !important; }
+    .fc-button { padding: 0.3em 0.5em !important; }
+
+
+    /* --- 3. LISTA DE TALLERES (GRILLA) --- */
+    .workshop-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Tarjetas adaptables */
+        gap: 20px;
+        margin-top: 15px;
+    }
+    
+    .workshop-card {
+        background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        display: flex; flex-direction: column;
+        justify-content: space-between;
+    }
+    .workshop-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #0b4aa6; }
+    
+    .workshop-header { font-weight: bold; font-size: 1.1rem; color: #2d3748; margin-bottom: 5px; }
+    .workshop-instructor { font-size: 0.9rem; color: #718096; margin-bottom: 10px; display:flex; align-items:center; gap:6px; }
+    
+    /* Botones de Acción en Tarjeta */
+    .workshop-actions {
+        margin-top: 15px;
+        display: grid; 
+        /* PC: 3 botones en fila. Móvil: Se apilan automáticamente si es muy angosto */
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
+        gap: 8px;
+    }
+    .workshop-actions .btn {
+        width: 100%; font-size: 0.8rem; padding: 6px; justify-content: center;
+    }
+
+
+    /* --- 4. FORMULARIOS Y TABLAS --- */
+    .styled-form .form-group { margin-bottom: 15px; }
+    .styled-form label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; color: #4a5568; }
+    .styled-form input, .styled-form textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; }
+    
+    .days-wrapper { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+    .day-check { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9rem; background:#f7fafc; padding:4px 8px; border-radius:4px; border:1px solid #eee; }
+
+    /* Matriz de Asistencia con Scroll */
+    .att-grid-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .att-grid-table th, .att-grid-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-size: 0.85rem; }
+    .att-grid-table th { background: #f7fafc; position: sticky; top: 0; z-index: 10; }
+    .att-grid-table td:first-child { text-align: left; font-weight: bold; position: sticky; left: 0; background: white; z-index: 5; border-right: 2px solid #eee;}
+    
+    .cell-present { background-color: #c6f6d5; color: #22543d; }
+    .cell-absent { background-color: #fed7d7; color: #822727; }
+
+    /* --- 5. AJUSTES MÓVIL ESPECÍFICOS --- */
+    @media (max-width: 600px) {
+        .panel { padding: 15px !important; }
+        .calendar-header-panel { flex-direction: column; align-items: stretch; } /* Botón Nuevo ocupa ancho completo */
+        #btnNewWorkshop { width: 100%; }
+        
+        .workshop-grid { grid-template-columns: 1fr; } /* 1 sola columna de tarjetas */
+        
+        #calendar { min-height: 400px !important; } /* Calendario más bajo para ver algo más */
+    }

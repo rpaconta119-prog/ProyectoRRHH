@@ -4,109 +4,161 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Generar Acta - Recursos Humanos</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="styles/index.css">
   <link rel="stylesheet" href="styles/Actas.css">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* Esto asegura que el contenedor de actas ocupe todo el espacio del main */
+    .actas-wrapper {
+        display: flex;
+        gap: 20px;
+        height: 100%; /* Para que ocupe el alto disponible */
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    
+    /* Ajustes para que no se rompa si la pantalla es chica */
+    .controls-panel {
+        flex: 0 0 300px; /* Ancho fijo para controles */
+        overflow-y: auto;
+    }
+    .preview-panel {
+        flex: 1; /* El resto del espacio para la hoja */
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        background: #f0f2f5; /* Fondo gris para resaltar la hoja blanca */
+    }
+  </style>
 </head>
 <body>
 
   <header class="topbar">
     <div class="topbar-left">
-      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <button id="btn-toggle-sidebar" class="icon-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a href="index.html">
+        <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      </a>
       <h1>Actas Administrativas</h1>
     </div>
     <div class="topbar-right">
-      <a class="btn" href="index.html">Volver</a>
+       <a href="index.html" class="btn" style="text-decoration: none; color: inherit;">
+         <i class="fa-solid fa-arrow-left"></i> Volver
+       </a>
     </div>
   </header>
 
-  <div class="main-container">
+  <div class="app">
     
-    <aside class="controls-panel">
-      <h2>Datos del Acta</h2>
+    <div id="sidebar-container"></div>
+
+    <main class="content" style="padding: 0;"> 
       
-      <div class="form-group">
-        <label for="selPerson">Seleccionar Empleado</label>
-        <select id="selPerson">
-          <option value="">-- Cargando... --</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="inputDate">Fecha del suceso</label>
-        <input type="date" id="inputDate">
-      </div>
-
-      <div class="form-group">
-        <label for="inputType">Tipo de Sanción</label>
-        <select id="inputType">
-          <option value="Llamado de Atención">Llamado de Atención</option>
-          <option value="Apercibimiento">Apercibimiento</option>
-          <option value="Suspensión">Suspensión</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="inputReason">Descripción de los hechos</label>
-        <textarea id="inputReason" placeholder="Describa detalladamente el motivo de la sanción..."></textarea>
-        <small style="color: #666;">El sistema ajustará el texto automáticamente.</small>
-      </div>
-
-      <div class="separator"></div>
-
-      <button id="btnSave" class="btn-primary">GENERAR Y GUARDAR PDF</button>
-    </aside>
-
-    <main class="preview-panel">
-      <div class="a4-paper" id="printableArea">
+      <div class="actas-wrapper">
         
-        <div class="acta-header">
-          <img src="Assets/LOGO.png" alt="Logo Municipal" class="paper-logo" onerror="this.style.visibility='hidden'">
-          <h3>MUNICIPALIDAD / RRHH</h3>
-          <div class="acta-title" id="viewTitle">LLAMADO DE ATENCIÓN</div>
-        </div>
-
-        <div class="acta-body">
-          <p>
-            En la ciudad, a los <strong id="viewDate">___</strong> días del mes, 
-            se procede a notificar al agente:
-          </p>
-          <p style="margin-left: 20px;">
-            Nombre: <strong id="viewName">__________________</strong><br>
-            Legajo/ID: <strong id="viewId">___</strong>
-          </p>
+        <aside class="controls-panel" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h2>Datos del Acta</h2>
           
-          <p class="section-title">MOTIVO / DESCRIPCIÓN:</p>
-          <div id="viewReason" class="reason-text">
-            (El texto ingresado aparecerá aquí...)
+          <div class="form-group">
+            <label for="selPerson">Seleccionar Empleado</label>
+            <select id="selPerson" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+              <option value="">-- Cargando... --</option>
+            </select>
           </div>
 
-          <p class="legal-text">
-            Queda usted debidamente notificado/a, firmando al pie de la presente para constancia de recepción. Se adjuntará copia a su legajo personal.
-          </p>
-        </div>
-
-        <div class="acta-footer">
-          
-          <div class="sign-box">
-            <img src="Assets/firma_oficial.png" class="static-signature-img" alt="Firma Autoridad" onerror="this.style.display='none'">
-            <div class="line"></div>
-            <p>Firma Autoridad Competente</p>
-            <small>Recursos Humanos</small>
-          </div>
-          
-          <div class="sign-box right-box">
-            <div style="height: 60px;"></div> 
-            <div class="line"></div>
-            <p>Firma del Agente (Recepción)</p>
-            <small id="viewSignName">Aclaración</small>
+          <div class="form-group">
+            <label for="inputDate">Fecha del suceso</label>
+            <input type="date" id="inputDate" style="width: 100%; padding: 8px; margin-bottom: 15px;">
           </div>
 
+          <div class="form-group">
+            <label for="inputType">Tipo de Sanción</label>
+            <select id="inputType" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+              <option value="Llamado de Atención">Llamado de Atención</option>
+              <option value="Apercibimiento">Apercibimiento</option>
+              <option value="Suspensión">Suspensión</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inputReason">Descripción de los hechos</label>
+            <textarea id="inputReason" rows="5" style="width: 100%; padding: 8px;" placeholder="Describa detalladamente el motivo..."></textarea>
+            <small style="color: #666;">El sistema ajustará el texto automáticamente.</small>
+          </div>
+
+          <div class="separator" style="margin: 20px 0; border-bottom: 1px solid #eee;"></div>
+
+          <button id="btnSave" class="btn-primary" style="width: 100%; padding: 10px; background: #0056b3; color: white; border: none; cursor: pointer;">
+            GENERAR Y GUARDAR PDF
+          </button>
+        </aside>
+
+        <div class="preview-panel">
+          <div class="a4-paper" id="printableArea">
+            
+            <div class="acta-header">
+              <img src="Assets/LOGO.png" alt="Logo Municipal" class="paper-logo" onerror="this.style.visibility='hidden'">
+              <h3>MUNICIPALIDAD / RRHH</h3>
+              <div class="acta-title" id="viewTitle">LLAMADO DE ATENCIÓN</div>
+            </div>
+
+            <div class="acta-body">
+              <p>
+                En la ciudad, a los <strong id="viewDate">___</strong> días del mes, 
+                se procede a notificar al agente:
+              </p>
+              <p style="margin-left: 20px;">
+                Nombre: <strong id="viewName">__________________</strong><br>
+                Legajo/ID: <strong id="viewId">___</strong>
+              </p>
+              
+              <p class="section-title">MOTIVO / DESCRIPCIÓN:</p>
+              <div id="viewReason" class="reason-text">
+                (El texto ingresado aparecerá aquí...)
+              </div>
+
+              <p class="legal-text">
+                Queda usted debidamente notificado/a, firmando al pie de la presente para constancia de recepción. Se adjuntará copia a su legajo personal.
+              </p>
+            </div>
+
+            <div class="acta-footer">
+              <div class="sign-box">
+                <img src="Assets/firma_oficial.png" class="static-signature-img" alt="Firma Autoridad" onerror="this.style.display='none'">
+                <div class="line"></div>
+                <p>Firma Autoridad Competente</p>
+                <small>Recursos Humanos</small>
+              </div>
+              
+              <div class="sign-box right-box">
+                <div style="height: 60px;"></div> 
+                <div class="line"></div>
+                <p>Firma del Agente (Recepción)</p>
+                <small id="viewSignName">Aclaración</small>
+              </div>
+            </div>
+
+          </div>
         </div>
 
-      </div>
-    </main>
+      </div> </main>
   </div>
+
   <script src="Script/api.js"></script>
+  
+  <script src="Script/menu.js"></script> 
+  
   <script src="Script/Actas.js"></script>
+
+  <script src="Script/ui.js"></script> 
+
 </body>
 </html>

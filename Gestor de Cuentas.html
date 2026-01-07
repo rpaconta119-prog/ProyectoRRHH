@@ -4,47 +4,140 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Gestor de Cuentas - Admin</title>
-  <link rel="stylesheet" href="style.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="styles/index.css">
+  
   <style>
+    /* Estilos específicos para la Tabla de Usuarios */
+    .table-responsive {
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px; /* Evita que se aplaste mucho en celular */
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        color: #444;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+    }
+
+    td {
+        font-size: 0.9rem;
+        color: #333;
+    }
+
+    /* Colores para el estado */
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    .status-pending { background-color: #fff3cd; color: #856404; } /* Amarillo */
+    .status-active { background-color: #d4edda; color: #155724; }  /* Verde */
+
+    /* Botones de acción dentro de la tabla */
+    .action-btn {
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+        margin-right: 5px;
+    }
     
+    .btn-approve { background-color: #28a745; color: white; }
+    .btn-approve:hover { background-color: #218838; }
+
+    .btn-delete { background-color: #dc3545; color: white; }
+    .btn-delete:hover { background-color: #c82333; }
+    
+    .btn-edit { background-color: #ffc107; color: #333; }
+    .btn-edit:hover { background-color: #e0a800; }
+
   </style>
 </head>
+
 <body>
 
   <header class="topbar">
     <div class="topbar-left">
-      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <button id="btn-toggle-sidebar" class="icon-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a href="index.html">
+        <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      </a>
       <h1>Panel de Administración</h1>
     </div>
     <div class="topbar-right">
-      <a class="btn" href="index.html">Volver al Inicio</a>
-      <button id="btn-logout" class="btn">Salir</button>
+      <div id="userArea" class="user">—</div>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
     </div>
   </header>
 
-  <main class="container">
-    <h2>Solicitudes y Usuarios</h2>
-    <p>Aquí puedes validar el acceso de nuevos usuarios al sistema.</p>
+  <div class="app">
     
-    <div class="table-responsive">
-      <table id="usersTable">
-     <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Usuario</th>
-            <th>Contraseña</th>
-            <th>Rol</th>
-            <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody id="usersTableBody">
-    </tbody>
-</table>
-    </div>
-  </main>
+    <div id="sidebar-container"></div>
+
+    <main class="content">
+      
+      <section class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2 style="margin: 0;"><i class="fa-solid fa-users-gear"></i> Solicitudes y Usuarios</h2>
+                <p class="muted" style="margin-top: 5px;">Valida accesos, elimina usuarios o cambia contraseñas.</p>
+            </div>
+            <button onclick="cargarUsuarios()" class="btn" style="background: #f1f3f4; color: #333;">
+                <i class="fa-solid fa-sync"></i> Actualizar
+            </button>
+        </div>
+        
+        <div class="table-responsive">
+          <table id="usersTable">
+             <thead>
+                <tr>
+                   <th>Nombre</th>
+                   <th>Usuario</th>
+                   <th>Contraseña</th> <th>Rol</th>
+                   <th>Estado</th>
+                   <th>Acciones</th>
+                </tr>
+             </thead>
+             <tbody id="usersTableBody">
+                <tr><td colspan="6" class="muted">Cargando usuarios...</td></tr>
+             </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <script src="Script/api.js"></script>
+  <script src="Script/auth.js"></script>
+  
+  <script src="Script/menu.js"></script>
+  <script src="Script/ui.js"></script>
+  
   <script src="Script/GestorDeCuentas.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -7,188 +7,415 @@
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles/index.css">
+  
+  <style>
+    /* --- ESTILOS DE LAYOUT --- */
+    .panel-grid {
+        display: grid;
+        grid-template-columns: 400px 1fr; /* Formulario fijo a 400px, lista ocupa el resto */
+        gap: 25px;
+        align-items: start;
+    }
+
+    /* En pantallas chicas, una columna */
+    @media (max-width: 1000px) {
+        .panel-grid { grid-template-columns: 1fr; }
+    }
+
+    /* --- ESTILOS DEL FORMULARIO --- */
+    #personForm label {
+        display: block;
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #4a5568;
+    }
+    #personForm input, #personForm select, #personForm textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+    }
+    #personForm input:focus {
+        border-color: #3182ce;
+        outline: none;
+    }
+
+    /* --- ESTILOS DE LA LISTA DE PERSONAL (Tarjetas) --- */
+    
+    .people-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Tarjetas responsivas */
+        gap: 15px;
+        padding-right: 5px;
+    }
+
+    .person-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-left: 5px solid #007bff; /* El borde azul lateral */
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        flex-direction: row; /* Elementos en fila (foto izq, texto der) */
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .person-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    /* ESTILO PARA LA FOTO O INICIAL (AVATAR EN TARJETA) */
+    .person-card img, 
+    .person-card .avatar { 
+        width: 60px;
+        height: 60px;
+        border-radius: 8px; /* Cuadrado con bordes redondeados */
+        object-fit: cover;
+        background-color: #edf2f7; /* Color de fondo si no hay foto */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #4a5568;
+        flex-shrink: 0; /* Evita que la foto se aplaste */
+    }
+
+    /* Texto dentro de la tarjeta */
+    .card-info {
+        flex: 1;
+        overflow: hidden;
+    }
+    .card-name {
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 1rem;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .card-meta {
+        font-size: 0.75rem;
+        color: #718096;
+    }
+
+    /* Botón Ver/Editar dentro de la tarjeta */
+    .btn-card-action {
+        margin-top: 8px;
+        width: 100%;
+        padding: 5px;
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: #4a5568;
+    }
+    .btn-card-action:hover { background: #e2e8f0; }
+
+
+    /* --- ESTILOS DEL MODAL --- */
+    .modal {
+        display: flex; 
+        position: fixed;
+        z-index: 2000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.6);
+        align-items: center; justify-content: center;
+        opacity: 1; transition: opacity 0.3s;
+    }
+    .modal.hidden { display: none; opacity: 0; }
+
+    .modal-content {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        width: 90%; max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .modal-close {
+        position: absolute; top: 15px; right: 15px;
+        background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #666;
+    }
+
+    .detail-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+    
+    /* --- NUEVO: ESTILOS PARA EDICIÓN DE FOTO EN MODAL --- */
+    .detail-avatar {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: #edf2f7;
+        border: 3px solid white;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.5rem; color: #cbd5e0;
+        overflow: hidden;
+        position: relative; /* Necesario para el overlay */
+        cursor: pointer;    /* Manito para indicar click */
+        flex-shrink: 0;
+    }
+
+    /* La imagen real */
+    .detail-avatar img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* La capa oscura con la camarita que aparece al pasar el mouse */
+    .avatar-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 1.5rem;
+        opacity: 0; /* Invisible por defecto */
+        transition: opacity 0.2s;
+    }
+
+    /* Al pasar el mouse sobre el avatar, mostrar el overlay */
+    .detail-avatar:hover .avatar-overlay {
+        opacity: 1;
+    }
+    
+    .notes-box {
+        background: #f7fafc;
+        border: 1px solid #edf2f7;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+    .modal-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    .btn.danger { background-color: #e53e3e; color: white; }
+    .btn.danger:hover { background-color: #c53030; }
+
+  </style>
 </head>
+
 <body>
+
   <header class="topbar">
     <div class="topbar-left">
-      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <button id="btn-toggle-sidebar" class="icon-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a href="index.html">
+        <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      </a>
       <h1><i class="fa-solid fa-users-gear"></i> Personal</h1>
     </div>
     <div class="topbar-right">
-      <a class="btn" href="index.html">
-        <i class="fa-solid fa-arrow-left"></i> Volver
-      </a>
+      <div id="userArea" class="user">—</div>
       <button id="btn-logout" class="btn" title="Cerrar sesión">
         <i class="fa-solid fa-right-from-bracket"></i> Salir
       </button>
     </div>
   </header>
 
-  <main class="content" style="padding:18px;">
-    <section class="panel-grid">
+  <div class="app">
+    
+    <div id="sidebar-container"></div>
+
+    <main class="content">
       
-      <div class="panel form-panel">
-        <h2><i class="fa-solid fa-user-pen"></i> Gestión de Personal</h2>
-        
-        <form id="personForm">
-          <input type="hidden" id="personId">
+      <section class="panel-grid">
+      
+        <div class="panel form-panel">
+          <h2><i class="fa-solid fa-user-pen"></i> Gestión de Personal</h2>
           
-          <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
-            <i class="fa-regular fa-id-card" style="color:#4299e1; margin-right:5px;"></i> 
-            1. Datos Personales
-          </h4>
-          
-          <label>Nombre completo <input id="fullName" required/></label>
-          <label>CUIL/CUIT <input id="cuil" placeholder="XX-XXXXXXXX-X" /></label>
-          
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-             <label>Nacimiento <input id="birthDate" type="date" /></label>
-             <label>Estado civil 
-                <select id="maritalStatus">
-                  <option value="">Seleccione</option>
-                  <option>Soltero/a</option><option>Casado/a</option><option>Concubinato</option><option>Otro</option>
-                </select>
-             </label>
-          </div>
-          
-          <label>Domicilio real <input id="address" /></label>
-          <label>Contacto de emergencia <input id="emergencyContact" /></label>
-          
-          <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
-            <i class="fa-solid fa-briefcase" style="color:#48bb78; margin-right:5px;"></i> 
-            2. Datos Laborales
-          </h4>
-          
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-             <label>Legajo <input id="legajo" /></label>
-             <label>Categoría <input id="categoria" /></label>
-          </div>
-          
-          <label>Rol <input id="rol" /></label>
-          <label>Área <input id="area" /></label>
-          <label>Coordinador <input id="coordinador" /></label>
-          <label>Dir. oficina <input id="direccionOficina" /></label>  
-          <input type="hidden" id="personJerId"> 
-          <input type="hidden" id="parent">
+          <form id="personForm">
+            <input type="hidden" id="personId">
+            
+            <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
+              <i class="fa-regular fa-id-card" style="color:#4299e1; margin-right:5px;"></i> 
+              1. Datos Personales
+            </h4>
+            
+            <label>Nombre completo <input id="fullName" required/></label>
+            <label>CUIL/CUIT <input id="cuil" placeholder="XX-XXXXXXXX-X" /></label>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+               <label>Nacimiento <input id="birthDate" type="date" /></label>
+               <label>Estado civil 
+                  <select id="maritalStatus">
+                    <option value="">Seleccione</option>
+                    <option>Soltero/a</option><option>Casado/a</option><option>Concubinato</option><option>Otro</option>
+                  </select>
+               </label>
+            </div>
+            
+            <label>Domicilio real <input id="address" /></label>
+            <label>Contacto de emergencia <input id="emergencyContact" /></label>
+            
+            <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
+              <i class="fa-solid fa-briefcase" style="color:#48bb78; margin-right:5px;"></i> 
+              2. Datos Laborales
+            </h4>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+               <label>Legajo <input id="legajo" /></label>
+               <label>Categoría <input id="categoria" /></label>
+            </div>
+            
+            <label>Rol <input id="rol" /></label>
+            <label>Área <input id="area" /></label>
+            <label>Coordinador <input id="coordinador" /></label>
+            <label>Dir. oficina <input id="direccionOficina" /></label>  
+            <input type="hidden" id="personJerId"> 
+            <input type="hidden" id="parent">
 
-          <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
-            <i class="fa-solid fa-people-roof" style="color:#ed8936; margin-right:5px;"></i> 
-            3. Grupo Familiar
-          </h4>
-          <label>Cónyuge <input id="spouseInfo" /></label>
-          <label>Hijos <textarea id="childrenInfo" rows="2"></textarea></label>
+            <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
+              <i class="fa-solid fa-people-roof" style="color:#ed8936; margin-right:5px;"></i> 
+              3. Grupo Familiar
+            </h4>
+            <label>Cónyuge <input id="spouseInfo" /></label>
+            <label>Hijos <textarea id="childrenInfo" rows="2"></textarea></label>
 
-          <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
-             <i class="fa-solid fa-building-user" style="color:#805ad5; margin-right:5px;"></i> 
-             4. Asignación
-          </h4>
-          <label>Sector <select id="personSector" required><option value="">Seleccione...</option></select></label>
-          
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <label>Ingreso <input id="dateIn" type="date" /></label>
-            <label>Baja <input id="dateOut" type="date" /></label>
-          </div>
+            <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
+               <i class="fa-solid fa-building-user" style="color:#805ad5; margin-right:5px;"></i> 
+               4. Asignación
+            </h4>
+            <label>Sector <select id="personSector" required><option value="">Seleccione...</option></select></label>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <label>Ingreso <input id="dateIn" type="date" /></label>
+              <label>Baja <input id="dateOut" type="date" /></label>
+            </div>
 
-          <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
-             <i class="fa-solid fa-money-check-dollar" style="color:#38b2ac; margin-right:5px;"></i> 
-             5. Haberes
-          </h4>
-          <label>CBU <input id="cbu" /></label>
-          <label>Obra social <input id="obraSocial" /></label>
-          <label>Observaciones <textarea id="taxInfo" rows="1"></textarea></label>
+            <h4 style="margin-top:15px; border-bottom:1px solid #eee; padding-bottom:5px;">
+               <i class="fa-solid fa-money-check-dollar" style="color:#38b2ac; margin-right:5px;"></i> 
+               5. Haberes
+            </h4>
+            <label>CBU <input id="cbu" /></label>
+            <label>Obra social <input id="obraSocial" /></label>
+            <label>Observaciones <textarea id="taxInfo" rows="1"></textarea></label>
 
-          <label><i class="fa-solid fa-camera"></i> Foto <input id="photoInput" type="file" accept="image/*" /></label>
+            <label><i class="fa-solid fa-camera"></i> Foto <input id="photoInput" type="file" accept="image/*" /></label>
 
-          <div class="form-actions" style="margin-top:20px;">
-            <button type="submit" class="btn primary">
-                <i class="fa-solid fa-floppy-disk"></i> Guardar
-            </button>
-            <button type="button" id="btnReset" class="btn">
-                <i class="fa-solid fa-plus"></i> Nuevo
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="panel list-panel">
-        <h2><i class="fa-solid fa-list-ul"></i> Listado de Personal</h2>
-        
-        <div class="search-row">
-          <div style="position:relative; flex:1;">
-             <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#aaa;"></i>
-             <input id="searchInput" placeholder="Buscar por nombre..." style="padding-left:30px; width:100%; box-sizing:border-box;" />
-          </div>
-          
-          <select id="filterSector"><option value="">Todos los sectores</option></select>
-          
-          <button id="btnClear" class="btn" title="Limpiar filtros">
-            <i class="fa-solid fa-filter-circle-xmark"></i>
-          </button>
+            <div class="form-actions" style="margin-top:20px;">
+              <button type="submit" class="btn primary">
+                  <i class="fa-solid fa-floppy-disk"></i> Guardar
+              </button>
+              <button type="button" id="btnReset" class="btn">
+                  <i class="fa-solid fa-plus"></i> Nuevo
+              </button>
+            </div>
+          </form>
         </div>
-        
-        <div id="peopleContainer" class="people-container" style="margin-top:12px; max-height: 700px; overflow-y: auto; padding-right:5px;">
-            </div> 
-      </div>
-    </section>
-  </main>
+
+        <div class="panel list-panel">
+          <h2><i class="fa-solid fa-list-ul"></i> Listado de Personal</h2>
+          
+          <div class="search-row">
+            <div style="position:relative; flex:1;">
+               <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#aaa;"></i>
+               <input id="searchInput" placeholder="Buscar por nombre..." style="padding-left:30px; width:100%; box-sizing:border-box;" />
+            </div>
+            
+            <select id="filterSector"><option value="">Todos los sectores</option></select>
+            
+            <button id="btnClear" class="btn" title="Limpiar filtros">
+              <i class="fa-solid fa-filter-circle-xmark"></i>
+            </button>
+          </div>
+          
+          <div id="peopleContainer" class="people-container" style="margin-top:12px; max-height: 700px; overflow-y: auto; padding-right:5px;">
+              <p class="muted">Cargando personal...</p>
+          </div> 
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <div id="detailModal" class="modal hidden">
-  <div class="modal-content">
-    <button class="modal-close" id="modalClose">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-    
-    <div class="detail-header">
-      <div class="detail-avatar" id="detailAvatar">
-          <i class="fa-solid fa-user"></i> 
-      </div>
-      <div>
-        <h3 id="detailName" style="margin:0; font-size:1.5rem; color:#2d3748;">Nombre del Empleado</h3>
-        <div id="detailSector" class="muted" style="margin-top:5px;">
-            <i class="fa-solid fa-building"></i> Sector
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <input type="file" id="modalPhotoInput" hidden accept="image/*">
+
+      <div class="detail-header">
+        <div class="detail-avatar" id="detailAvatar" title="Cambiar foto">
+            </div>
+        
+        <div style="flex:1;">
+          <h3 id="detailName" style="margin:0; font-size:1.5rem; color:#2d3748;">Nombre del Empleado</h3>
+          <div id="detailSector" class="muted" style="margin-top:5px;">
+              <i class="fa-solid fa-building"></i> Sector
+          </div>
         </div>
       </div>
-    </div>
-    
-    <div class="detail-body">
-      <h4 style="color:#4a5568; margin-bottom:10px; display:flex; align-items:center;">
-        <i class="fa-solid fa-address-card" style="margin-right:8px; color:#4299e1;"></i> 
-        Datos personales
-      </h4>
-      <div id="detailPersonal" class="notes-box" style="margin-bottom:20px;"></div>
       
-      <h4 style="color:#4a5568; margin-bottom:10px; display:flex; align-items:center;">
-        <i class="fa-solid fa-people-roof" style="margin-right:8px; color:#ed8936;"></i> 
-        Grupo familiar
-      </h4>
-      <div id="detailFamily" class="notes-box" style="margin-bottom:20px;"></div>
+      <div class="detail-body">
+        <h4 style="color:#4a5568; margin-bottom:10px; display:flex; align-items:center;">
+          <i class="fa-solid fa-address-card" style="margin-right:8px; color:#4299e1;"></i> 
+          Datos personales
+        </h4>
+        <div id="detailPersonal" class="notes-box" style="margin-bottom:20px;"></div>
+        
+        <h4 style="color:#4a5568; margin-bottom:10px; display:flex; align-items:center;">
+          <i class="fa-solid fa-people-roof" style="margin-right:8px; color:#ed8936;"></i> 
+          Grupo familiar
+        </h4>
+        <div id="detailFamily" class="notes-box" style="margin-bottom:20px;"></div>
+        
+        <h4 style="color:#4a5568; margin-bottom:10px; display:flex; align-items:center;">
+          <i class="fa-solid fa-file-contract" style="margin-right:8px; color:#48bb78;"></i> 
+          Datos laborales / pago
+        </h4>
+        <div id="detailDocs" class="notes-box"></div>
+      </div>
       
-      <h4 style="color:#4a5568; margin-bottom:10px; display:flex; align-items:center;">
-        <i class="fa-solid fa-file-contract" style="margin-right:8px; color:#48bb78;"></i> 
-        Datos laborales / pago
-      </h4>
-      <div id="detailDocs" class="notes-box"></div>
-    </div>
-    
-    <div class="modal-actions">
-      <button id="editFromModal" class="btn">
-          <i class="fa-solid fa-pen-to-square"></i> Editar
-      </button>
-      <button id="deleteFromModal" class="btn danger">
-          <i class="fa-solid fa-trash-can"></i> Eliminar
-      </button>
-      <button id="closeModalBottom" class="btn">
-          Cerrar
-      </button>
+      <div class="modal-actions">
+        <button id="editFromModal" class="btn">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+        </button>
+        <button id="deleteFromModal" class="btn danger">
+            <i class="fa-solid fa-trash-can"></i> Eliminar
+        </button>
+        <button id="closeModalBottom" class="btn">
+            Cerrar
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
   <script src="Script/api.js"></script>
+  <script src="Script/auth.js"></script>
+  
+  <script src="Script/menu.js"></script>
+  <script src="Script/ui.js"></script>
+  
   <script src="Script/backlog.js"></script>
   <script src="Script/sectors.js"></script>
   <script src="Script/people.js"></script>
-  <script src="Script/auth.js"></script>
+
 </body>
 </html>

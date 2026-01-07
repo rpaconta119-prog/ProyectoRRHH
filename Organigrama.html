@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -7,72 +7,128 @@
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles/index.css">
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/orgchart/3.1.1/css/jquery.orgchart.min.css">
   
   <style>
-    /* Pequeño ajuste para que el organigrama tenga fondo de cuadrícula sutil */
+    /* Estilos específicos para esta página */
+    
+    /* Ajuste para que el organigrama tenga fondo de cuadrícula sutil */
     #chart-container {
         background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
         background-size: 20px 20px;
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 8px;
+        flex: 1; 
+        overflow: auto; 
+        text-align: center; 
+        position: relative;
     }
     .orgchart { background: transparent !important; }
+    
+    /* Estilos del buscador específicos de aquí */
+    .search-container {
+        display: flex; 
+        gap: 10px; 
+        margin-bottom: 20px; 
+        justify-content: center; 
+        flex-wrap: wrap;
+    }
+    
+    .orgchart .node .title {
+        box-sizing: border-box;
+        padding: 2px;
+        width: 130px;
+        text-align: center;
+        font-size: .75rem;
+        font-weight: 700;
+        height: 20px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        /* Fondo azul de la marca */
+        background-color: var(--brand-blue, #0b4aa6) !important;
+        background-image: none !important;
+        color: #fff !important;
+        border-radius: 4px 4px 0 0;
+        /* Aseguramos borde sólido azul, no punteado */
+        border: 1px solid var(--brand-blue, #0b4aa6) !important;
+    }
+
+  /* 1. Definición de color */
+      :root {
+          --brand-blue: #0b4aa6;
+      }
   </style>
 </head>
+
 <body>
+
   <header class="topbar">
     <div class="topbar-left">
-      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <button id="btn-toggle-sidebar" class="icon-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a href="index.html">
+        <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      </a>
       <h1><i class="fa-solid fa-sitemap"></i> Organigrama</h1>
     </div>
     <div class="topbar-right">
-      <a class="btn" href="index.html">
-        <i class="fa-solid fa-arrow-left"></i> Volver
-      </a>
+      <div id="userArea" class="user">—</div>
       <button id="btn-logout" class="btn" title="Cerrar sesión">
         <i class="fa-solid fa-right-from-bracket"></i> Salir
       </button>
     </div>
   </header>
 
-  <main class="content" style="padding: 20px;">
-    <div class="panel" style="min-height: 80vh; display:flex; flex-direction:column;">
-       
-       <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
-           <h2 style="margin:0; display:flex; align-items:center; gap:10px;">
-               <i class="fa-solid fa-network-wired" style="color:#4a5568;"></i> 
-               Estructura Organizacional
-           </h2>
-           <p class="muted" style="margin:5px 0 0 0;">Visualiza la jerarquía y relaciones de la empresa.</p>
-       </div>
+  <div class="app">
+    
+    <div id="sidebar-container"></div>
 
-       <div class="search-container" style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
-          <div style="position:relative; width: 300px;">
-             <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#aaa;"></i>
-             <input type="text" id="key-word" placeholder="Buscar empleado..." style="padding-left:35px; width:100%; box-sizing:border-box; height: 40px; border: 1px solid #cbd5e0; border-radius: 6px;">
-          </div>
-          
-          <button id="btn-search" class="btn primary">
-              <i class="fa-solid fa-magnifying-glass"></i> Buscar
-          </button>
-          <button id="btn-clear" class="btn">
-              <i class="fa-solid fa-eraser"></i> Limpiar
-          </button>
-       </div>
+    <main class="content">
+      
+      <div class="panel" style="min-height: 80vh; display:flex; flex-direction:column;">
+         
+         <div style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">
+             <h2 style="margin:0; display:flex; align-items:center; gap:10px;">
+                 <i class="fa-solid fa-network-wired" style="color:#4a5568;"></i> 
+                 Estructura Organizacional
+             </h2>
+             <p class="muted" style="margin:5px 0 0 0;">Visualiza la jerarquía y relaciones de la empresa.</p>
+         </div>
 
-       <div id="chart-container" style="flex: 1; overflow: auto; text-align: center; position: relative;">
+         <div class="search-container">
+            <div style="position:relative; width: 300px;">
+               <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); color:#aaa;"></i>
+               <input type="text" id="key-word" placeholder="Buscar empleado..." style="padding-left:35px; width:100%; box-sizing:border-box; height: 40px; border: 1px solid #cbd5e0; border-radius: 6px;">
             </div>
-    </div>
-  </main>
+            
+            <button id="btn-search" class="btn primary">
+                <i class="fa-solid fa-magnifying-glass"></i> Buscar
+            </button>
+            <button id="btn-clear" class="btn">
+                <i class="fa-solid fa-eraser"></i> Limpiar
+            </button>
+         </div>
+
+         <div id="chart-container"></div>
+      </div>
+
+    </main>
+  </div>
   
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/orgchart/3.1.1/js/jquery.orgchart.min.js"></script>
+  
   <script src="Script/api.js"></script>
-  <script src="Script/Organigrama.js"></script>
   <script src="Script/auth.js"></script>
+  
+  <script src="Script/menu.js"></script>
+  <script src="Script/ui.js"></script>
+  
+  <script src="Script/Organigrama.js"></script>
 </body>
 </html>

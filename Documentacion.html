@@ -4,7 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Documentación - Recursos Humanos</title>
-  <link rel="stylesheet" href="style.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="styles/index.css">
   
   <style>
     /* --- ESTILOS DEL MODAL --- */
@@ -54,7 +57,8 @@
     }
     .close-btn:hover { color: #000; }
 
-    /* --- ESTILOS GENERALES --- */
+    /* --- ESTILOS ESPECÍFICOS DE ESTA PÁGINA --- */
+    
     .toolbar {
       display: flex; gap: 10px; margin-bottom: 20px;
       align-items: center; background: #f1f3f4;
@@ -72,6 +76,7 @@
     .breadcrumbs span { cursor: pointer; color: #007bff; }
     .breadcrumbs span:hover { text-decoration: underline; }
     
+    /* Grid de archivos */
     .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
     .file-item { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; position: relative; transition: transform 0.2s; }
     .file-item:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); background-color: #f9f9f9; transform: translateY(-2px); }
@@ -80,19 +85,23 @@
     .delete-btn { position: absolute; top: 5px; right: 5px; background: none; border: none; color: #dc3545; cursor: pointer; opacity: 0; font-size: 1.2rem;}
     .file-item:hover .delete-btn { opacity: 1; }
     
-    /* --- NUEVO ESTILO BUSCADOR + FILTRO --- */
+    /* --- BUSCADOR + FILTRO --- */
     .search-controls {
         display: flex;
         gap: 10px;
         margin-bottom: 15px;
+        flex-wrap: wrap; 
     }
+
     .search-input { 
         flex-grow: 1; 
         padding: 12px; 
         border: 1px solid #ddd; 
         border-radius: 8px; 
-        font-size: 1rem; 
+        font-size: 1rem;
+        min-width: 200px; 
     }
+
     .filter-select {
         padding: 12px;
         border: 1px solid #ddd;
@@ -100,94 +109,80 @@
         background-color: white;
         font-size: 1rem;
         cursor: pointer;
+        min-width: 140px; 
     }
     .file-meta { font-size: 0.75rem; color: #666; margin-top: 5px; }
     
     #fileInput { display: none; }
-    /* --- BUSCADOR + FILTRO RESPONSIVE --- */
-    .search-controls {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-        flex-wrap: wrap; /* Permite que bajen si no hay espacio */
-    }
 
-    .search-input { 
-        flex-grow: 1; /* Ocupa todo el espacio disponible */
-        padding: 12px; 
-        border: 1px solid #ddd; 
-        border-radius: 8px; 
-        font-size: 1rem;
-        min-width: 200px; /* Evita que se haga diminuto */
-    }
-
-    .filter-select {
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background-color: white;
-        font-size: 1rem;
-        cursor: pointer;
-        min-width: 140px; /* Ancho mínimo para que se lea el texto */
-    }
-
-    /* ESTO ES LO QUE LO HACE RESPONSIVE */
     @media (max-width: 600px) {
         .search-controls {
-            flex-direction: column; /* En celular, uno abajo del otro */
+            flex-direction: column; 
             gap: 10px;
         }
-        
-        .search-input, 
-        .filter-select {
-            width: 100%; /* Ocupan todo el ancho de la pantalla */
-            box-sizing: border-box; /* Para que el padding no rompa el ancho */
+        .search-input, .filter-select {
+            width: 100%; 
+            box-sizing: border-box; 
         }
     }
   </style>
 </head>
 
 <body>
+  
   <header class="topbar">
     <div class="topbar-left">
-      <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      <button id="btn-toggle-sidebar" class="icon-btn">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a href="index.html">
+        <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
+      </a>
       <h1>Centro de Documentación</h1>
     </div>
     <div class="topbar-right">
-      <a class="btn" href="index.html">Volver</a>
+      <div id="userArea" class="user">—</div>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
     </div>
   </header>
 
-  <div class="container">
+  <div class="app">
     
-    <div class="toolbar">
-      <button id="btn-atras" class="btn-icon" onclick="navegarAtras()" title="Subir un nivel" disabled>⬅</button>
+    <div id="sidebar-container"></div>
 
-      <div class="breadcrumbs" id="breadcrumbs">
-        <span onclick="navegarRaiz()">🏠 Inicio</span>
+    <main class="content">
+    
+      <div class="toolbar">
+        <button id="btn-atras" class="btn-icon" onclick="navegarAtras()" title="Subir un nivel" disabled>⬅</button>
+
+        <div class="breadcrumbs" id="breadcrumbs">
+          <span onclick="navegarRaiz()">🏠 Inicio</span>
+        </div>
+
+        <button class="btn" onclick="crearCarpeta()" style="background-color: #ffc107; color: #333;">
+          📁 Nueva
+        </button>
+        <button class="btn" onclick="document.getElementById('fileInput').click()" style="background-color: #007bff; color: white;">
+          ☁️ Subir
+        </button>
+        
+        <input type="file" id="fileInput" multiple onchange="procesarSubida(this)">
       </div>
 
-      <button class="btn" onclick="crearCarpeta()" style="background-color: #ffc107; color: #333;">
-        📁 Nueva
-      </button>
-      <button class="btn" onclick="document.getElementById('fileInput').click()" style="background-color: #007bff; color: white;">
-        ☁️ Subir
-      </button>
-      
-      <input type="file" id="fileInput" multiple onchange="procesarSubida(this)">
-    </div>
+      <div class="search-controls">
+          <input type="text" id="inputBuscador" class="search-input" placeholder="🔍 Buscar...">
+          <select id="filtroTipo" class="filter-select">
+              <option value="todo">Todo</option>
+              <option value="archivos">Solo Archivos</option>
+              <option value="carpetas">Solo Carpetas</option>
+          </select>
+      </div>
 
-    <div class="search-controls">
-        <input type="text" id="inputBuscador" class="search-input" placeholder="🔍 Buscar...">
-        <select id="filtroTipo" class="filter-select">
-            <option value="todo">Todo</option>
-            <option value="archivos">Solo Archivos</option>
-            <option value="carpetas">Solo Carpetas</option>
-        </select>
-    </div>
+      <div id="grid-contenido" class="file-grid"></div>
 
-    <div id="grid-contenido" class="file-grid"></div>
-
+    </main>
   </div>
 
   <div id="modalPreview" class="modal">
@@ -204,6 +199,11 @@
   </div>
 
   <script src="Script/api.js"></script>
+  <script src="Script/auth.js"></script>
+  
+  <script src="Script/menu.js"></script>
+  <script src="Script/ui.js"></script>
+  
   <script src="Script/documentacion.js"></script>
 </body>
 </html>
