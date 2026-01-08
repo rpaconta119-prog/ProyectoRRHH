@@ -1,16 +1,1 @@
-[
-  {
-    "user": "alejandro",
-    "pass": "38391219",
-    "name": "alejandro",
-    "validated": true,
-    "role": "admin"
-  },
-  {
-    "user": "zahir",
-    "pass": "zahir123",
-    "name": "zahir",
-    "validated": true,
-    "role": "admin"
-  }
-]
+[]

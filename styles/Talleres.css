@@ -333,7 +333,7 @@ form input, form textarea, form select {
 
 .modal-header-custom h3 {
     margin: 0;
-    color: #0d47a1;
+    color: #ffffff;
 }
 
 .modal-close-btn {
@@ -341,7 +341,7 @@ form input, form textarea, form select {
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #666;
+    color: #ffffff;
     line-height: 1;
 }
 

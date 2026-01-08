@@ -520,6 +520,7 @@ async function initPeopleUI() {
     
     // 1. CARGAMOS DATOS DEL SERVIDOR
     people = await API.cargar('people');
+    people.sort((a,b) => a.name.localeCompare(b.name));
     // Si usas sectores dinámicos, descomenta la siguiente línea:
     // window.sectors = await API.cargar('sectors'); 
     console.log("📦 3. Datos recibidos del servidor:", people);
@@ -598,6 +599,8 @@ async function initPeopleUI() {
             people.unshift(data);
             if(typeof BacklogService !== 'undefined') BacklogService.log('CREAR','PERSONA', null, data);
         }
+        // Ordenar alfabéticamente
+        people.sort((a,b) => a.name.localeCompare(b.name));
         
         await PeopleModule.save();
         PeopleModule.renderPeople();

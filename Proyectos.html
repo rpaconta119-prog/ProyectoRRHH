@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Proyectos - Recursos Humanos</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles/index.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    @import url('styles/talleres extras.css');
+    @import url('styles/Talleres.css');
+    
+    /* Estilo para el botón de Aprobar en el modal */
+    .btn-approve {
+        background-color: #805ad5; /* Un violeta para diferenciar */
+        color: white;
+    }
+    .btn-approve:hover { background-color: #6b46c1; }
+    /* ... tus otros estilos ... */
+
+    /* FORZAR QUE EL MODAL ESTÉ ARRIBA DE TODO */
+    .modal {
+        z-index: 9999 !important; /* Un número exageradamente alto para ganar siempre */
+        backdrop-filter: blur(2px); /* Opcional: difumina un poco el fondo para que se vea más pro */
+    }
+
+    /* Asegurar que el contenido del modal tenga margen si es muy largo */
+    .modal-content {
+        position: relative;
+        z-index: 10000; /* El contenido un punto más arriba que el fondo oscuro */
+        margin-top: 20px;
+        margin-bottom: 20px;
+        max-height: 90vh; /* Que no sea más alto que el 90% de la pantalla */
+        overflow-y: auto; /* Que tenga scroll si es muy largo */
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="btn-toggle-sidebar" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+      <a href="index.html"><img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/></a>
+      <h1>Gestión de Proyectos (Pre-Talleres)</h1>
+    </div>
+    <div class="topbar-right">
+      <div id="userArea" class="user">—</div>
+      <button id="btn-logout" class="btn" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </header>
+
+  <div class="app">
+    <div id="sidebar-container"></div>
+    <main class="content">
+      
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="calendar-header-panel">
+           <div>
+               <h2 style="margin:0;"><i class="fa-solid fa-pen-ruler"></i> Área de Planificación</h2>
+               <p class="muted" style="margin:0;">Crea y organiza proyectos antes de lanzarlos como talleres.</p>
+           </div>
+           <button id="btnNewProject" class="btn primary"><i class="fa-solid fa-plus"></i> Nuevo Proyecto</button>
+        </div>
+        <div id="calendarPlaceholder" style="min-height: 100px; display:flex; align-items:center; justify-content:center; background:#f7fafc; border-radius:8px; margin-top:15px; color:#aaa;">
+            <i class="fa-regular fa-calendar" style="margin-right:10px;"></i> Los proyectos en esta sección no afectan al calendario general hasta ser aprobados.
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 style="margin:0;"><i class="fa-solid fa-list-check"></i> Listado de Proyectos en Curso</h3>
+        <div id="projectList" class="workshop-grid" style="margin-top:20px;">
+            <p class="muted">Cargando proyectos...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="projectModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header-custom">
+        <h3 id="projectModalTitle">Nuevo Proyecto</h3>
+        <button class="modal-close-btn" id="projectClose">✕</button>
+      </div>
+      
+      <form id="projectFormModal" class="styled-form">
+        <input type="hidden" id="projectId">
+        
+        <div class="form-group">
+          <label>Nombre del Proyecto</label>
+          <input id="projectNameModal" type="text" placeholder="Ej: Planificación Yoga 2026" required />
+        </div>
+        <div class="form-group">
+          <label>Instructor Propuesto</label>
+          <input id="projectInstructorModal" type="text" placeholder="Nombre del instructor" />
+        </div>
+        
+        <div class="form-group">
+          <label>Días de repetición estimados:</label>
+          <div class="days-wrapper">
+            <label class="day-check"><input type="checkbox" name="weekday" value="1"> Lun</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="2"> Mar</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="3"> Mié</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="4"> Jue</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="5"> Vie</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="6"> Sáb</label>
+            <label class="day-check"><input type="checkbox" name="weekday" value="0"> Dom</label>
+          </div>
+        </div>
+        
+        <div style="display:flex; gap:10px;">
+          <div class="form-group" style="flex:1;"><label>Inicio Est.</label><input id="projectStartModal" placeholder="Seleccionar..." /></div>
+          <div class="form-group" style="flex:1;"><label>Fin Est.</label><input id="projectEndModal" placeholder="Seleccionar..." /></div>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción / Notas de armado</label>
+          <textarea id="projectDescModal" rows="3"></textarea>
+        </div>
+
+        <div id="extraSections" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                 <button type="button" class="btn small" onclick="toggleLogs()">Ver Bitácora</button>
+                 <button type="button" class="btn small" onclick="toggleDocs()">Ver Archivos</button>
+            </div>
+            <div id="logsContainer" style="display:none; background:#f9f9f9; padding:10px; border-radius:4px; margin-bottom:10px;"></div>
+            <div id="docsContainer" style="display:none; background:#f9f9f9; padding:10px; border-radius:4px; margin-bottom:10px;">
+                <input type="file" id="docInput" style="margin-bottom:5px;">
+                <ul id="docsList" style="list-style:none; padding:0;"></ul>
+            </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+          <button type="button" id="btnApproveProject" class="btn btn-approve" style="display:none;">
+            <i class="fa-solid fa-check-double"></i> Aprobar y Pasar a Taller
+          </button>
+
+          <div style="display:flex; gap:10px;">
+             <button type="button" id="projectCancel" class="btn">Cancelar</button>
+             <button type="submit" id="projectSave" class="btn btn-success"><i class="fa-solid fa-save"></i> Guardar Borrador</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="Script/api.js"></script>
+  <script src="Script/auth.js"></script>
+  <script src="Script/menu.js"></script>
+  <script src="Script/ui.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="Script/projects.js"></script>
+
+</body>
+</html>

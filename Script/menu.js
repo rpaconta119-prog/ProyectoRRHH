@@ -65,7 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     <i class="fa-solid fa-calendar-days nav-icon"></i>
                     <span>Calendario de Licencias</span>
                 </a>
-                
+
+                <a href="Proyectos.html" class="nav-item" id="nav-proyectos" title="Proyectos" style="display: none;">
+                    <i class="fa-solid fa-project-diagram nav-icon"></i>
+                    <span>Proyectos</span>
+                </a>
+
                 <a href="Gestor de Cuentas.html" class="nav-item" id="nav-gestor" title="Gestor de Cuentas" style="display: none;">
                     <i class="fa-solid fa-user-gear nav-icon"></i>
                     <span>Gestor de Cuentas</span>
@@ -93,7 +98,10 @@ function actualizarDatosMenu() {
             const sideName = document.getElementById('sideName');
             const sideRole = document.getElementById('sideRole');
             const sideAvatar = document.getElementById('sideAvatar');
+            
+            // Botones especiales
             const navGestor = document.getElementById('nav-gestor');
+            const navProyectos = document.getElementById('nav-proyectos'); // <--- 1. SELECCIONAMOS EL BOTÓN
 
             if (sideName) sideName.textContent = cur.name || cur.user || "Usuario";
             
@@ -106,8 +114,18 @@ function actualizarDatosMenu() {
                 sideAvatar.textContent = sideName.textContent.charAt(0).toUpperCase();
             }
 
+            // Lógica para el Gestor de Cuentas (Solo Admin)
             if (navGestor) {
                 navGestor.style.display = (cur.role === 'admin') ? 'flex' : 'none';
+            }
+
+            // Lógica para Proyectos (Aquí decides quién lo ve)
+            if (navProyectos) {
+                // OPCION A: Que lo vean TODOS
+                navProyectos.style.display = 'flex'; 
+
+                // OPCION B: Si quieres que solo lo vean los ADMINS, usa esta línea en su lugar:
+                // navProyectos.style.display = (cur.role === 'admin') ? 'flex' : 'none';
             }
 
         } catch (e) {
@@ -116,6 +134,7 @@ function actualizarDatosMenu() {
     }
 }
 
+// ... la función gestionarNavegacion() queda igual que antes ...
 function gestionarNavegacion() {
     // 1. Resaltar enlace activo
     const path = window.location.pathname.split("/").pop() || 'index.html';

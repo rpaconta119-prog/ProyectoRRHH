@@ -89,6 +89,9 @@ app.post('/api/applicants', (req, res) => guardarDatos('hr_applicant_v1.json', r
 app.get('/api/documents', (req, res) => leerDatos('hr_documents_v1.json', res));
 app.post('/api/documents', (req, res) => guardarDatos('hr_documents_v1.json', req.body, res));
 
+app.get('/api/projects', (req, res) => leerDatos('hr_projects_v1.json', res));
+app.post('/api/projects', (req, res) => guardarDatos('hr_projects_v1.json', req.body, res));
+
 // INICIO DEL SERVIDOR
 app.listen(PORT, () => {
     console.log(`--------------------------------------------------`);
