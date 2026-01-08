@@ -57,7 +57,7 @@ body {
 .sidebar.collapsed .user-panel .name,
 .sidebar.collapsed .user-panel .role,
 .sidebar.collapsed .nav-title { display: none; }
-.sidebar.collapsed .user-panel { justify-content: center; padding: 15px 0; }
+.sidebar.collapsed .user-panel { justify-content: center; padding: 15px 40px; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: 15px 0; }
 .sidebar.collapsed .nav-icon { margin-right: 0; font-size: 1.3rem; }
 

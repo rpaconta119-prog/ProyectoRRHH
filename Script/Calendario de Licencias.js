@@ -351,8 +351,15 @@ function renderLeavesList() {
         if (l.type === 'Enfermedad') { borderLeftColor = '#dc3545'; icon = '💊'; }
         if (l.type === 'Estudio') { borderLeftColor = '#6f42c1'; icon = '🎓'; }
 
-        const fStart = new Date(l.startDate).toLocaleDateString();
-        const fEnd = new Date(l.endDate).toLocaleDateString();
+        // Función auxiliar rápida para formatear YYYY-MM-DD a DD/MM/YYYY
+        const formatDateStr = (dateString) => {
+            if (!dateString) return '-';
+            const [year, month, day] = dateString.split('-'); // Separa por guión
+            return `${day}/${month}/${year}`; // Reordena a día/mes/año
+        };
+
+        const fStart = formatDateStr(l.startDate);
+        const fEnd = formatDateStr(l.endDate);
         const card = document.createElement('div');
         card.className = 'leave-card';
         card.style = `

@@ -6,70 +6,55 @@
   <title>Gestor de Cuentas - Admin</title>
   
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
   <link rel="stylesheet" href="styles/index.css">
   
   <style>
-    /* Estilos específicos para la Tabla de Usuarios */
-    .table-responsive {
-        overflow-x: auto;
-        margin-top: 20px;
-    }
+    /* --- ESTILOS DE LA TABLA --- */
+    .table-responsive { overflow-x: auto; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background-color: #f8f9fa; color: #444; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; }
+    td { font-size: 0.9rem; color: #333; }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 600px; /* Evita que se aplaste mucho en celular */
-    }
+    /* Estados */
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+    .status-pending { background-color: #fff3cd; color: #856404; font-weight: bold; padding: 2px 5px; border-radius: 4px;}
+    .status-ok { background-color: #d4edda; color: #155724; font-weight: bold; padding: 2px 5px; border-radius: 4px;}
+    .role-admin { background-color: #e2e6ea; color: #333; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
 
-    th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-
-    th {
-        background-color: #f8f9fa;
-        color: #444;
-        font-weight: bold;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-    }
-
-    td {
-        font-size: 0.9rem;
-        color: #333;
-    }
-
-    /* Colores para el estado */
-    .status-badge {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-    .status-pending { background-color: #fff3cd; color: #856404; } /* Amarillo */
-    .status-active { background-color: #d4edda; color: #155724; }  /* Verde */
-
-    /* Botones de acción dentro de la tabla */
-    .action-btn {
-        border: none;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        transition: background 0.2s;
-        margin-right: 5px;
-    }
+    /* Botones de acción */
+    .action-btn { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; margin-right: 5px; }
     
     .btn-approve { background-color: #28a745; color: white; }
     .btn-approve:hover { background-color: #218838; }
+
+    .btn-revoke { background-color: #6c757d; color: white; }
+    .btn-revoke:hover { background-color: #5a6268; }
 
     .btn-delete { background-color: #dc3545; color: white; }
     .btn-delete:hover { background-color: #c82333; }
     
     .btn-edit { background-color: #ffc107; color: #333; }
     .btn-edit:hover { background-color: #e0a800; }
+
+    /* --- ESTILOS DEL MODAL (VENTANA EMERGENTE) --- */
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5); display: none; /* Oculto por defecto */
+        justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-content {
+        background: white; padding: 25px; border-radius: 8px;
+        width: 90%; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .modal-content h3 { margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+    .modal-input {
+        width: 100%; padding: 10px; margin: 5px 0 15px 0;
+        border: 1px solid #ccc; border-radius: 4px; display: block; box-sizing: border-box;
+    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+    .btn-cancel { background: #ccc; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+    .btn-save { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
 
   </style>
 </head>
@@ -78,9 +63,7 @@
 
   <header class="topbar">
     <div class="topbar-left">
-      <button id="btn-toggle-sidebar" class="icon-btn">
-        <i class="fa-solid fa-bars"></i>
-      </button>
+      <button id="btn-toggle-sidebar" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
       <a href="index.html">
         <img src="Assets/LOGO.png" alt="Logo" class="logo-img" onerror="this.style.display='none'"/>
       </a>
@@ -95,20 +78,13 @@
   </header>
 
   <div class="app">
-    
-    <div id="sidebar-container"></div>
-
-    <main class="content">
-      
+    <div id="sidebar-container"></div> <main class="content">
       <section class="panel">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h2 style="margin: 0;"><i class="fa-solid fa-users-gear"></i> Solicitudes y Usuarios</h2>
                 <p class="muted" style="margin-top: 5px;">Valida accesos, elimina usuarios o cambia contraseñas.</p>
             </div>
-            <button onclick="cargarUsuarios()" class="btn" style="background: #f1f3f4; color: #333;">
-                <i class="fa-solid fa-sync"></i> Actualizar
-            </button>
         </div>
         
         <div class="table-responsive">
@@ -117,7 +93,8 @@
                 <tr>
                    <th>Nombre</th>
                    <th>Usuario</th>
-                   <th>Contraseña</th> <th>Rol</th>
+                   <th>Contraseña</th> 
+                   <th>Rol</th>
                    <th>Estado</th>
                    <th>Acciones</th>
                 </tr>
@@ -128,13 +105,38 @@
           </table>
         </div>
       </section>
-
     </main>
+  </div>
+
+  <div id="modalEditar" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Editar Usuario</h3>
+      <input type="hidden" id="editIndex">
+
+      <label>Nombre:</label>
+      <input type="text" id="editName" class="modal-input">
+
+      <label>Usuario (DNI/Legajo):</label>
+      <input type="text" id="editUser" class="modal-input">
+
+      <label>Contraseña:</label>
+      <input type="text" id="editPass" class="modal-input">
+
+      <label>Rol:</label>
+      <select id="editRole" class="modal-input">
+        <option value="user">USER</option>
+        <option value="admin">ADMIN</option>
+      </select>
+
+      <div class="modal-actions">
+        <button onclick="cerrarModal()" class="btn-cancel">Cancelar</button>
+        <button onclick="guardarCambiosUsuario()" class="btn-save">Guardar</button>
+      </div>
+    </div>
   </div>
 
   <script src="Script/api.js"></script>
   <script src="Script/auth.js"></script>
-  
   <script src="Script/menu.js"></script>
   <script src="Script/ui.js"></script>
   

@@ -1,23 +1,19 @@
-// Script/gestor.js
-
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Verificar seguridad: Solo un admin o usuario logueado debería ver esto
-    // (Puedes agregar lógica extra aquí para patear al usuario si no es admin)
-    
+    // Aquí podrías verificar si el usuario logueado es admin antes de cargar
     await cargarTablaUsuarios();
 });
-// Script/gestor.js
 
+// --- FUNCIÓN PRINCIPAL DE CARGA ---
 async function cargarTablaUsuarios() {
     const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = '<tr><td colspan="6">Cargando datos...</td></tr>'; // Nota: colspan 6 ahora
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">Cargando datos...</td></tr>';
 
     try {
         const users = await API.cargar('users'); 
         tbody.innerHTML = '';
 
-        if (users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6">No hay usuarios registrados.</td></tr>';
+        if (!users || users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">No hay usuarios registrados.</td></tr>';
             return;
         }
 
@@ -26,11 +22,12 @@ async function cargarTablaUsuarios() {
             const isValidated = u.validated === true;
             const role = u.role || 'user';
 
-            // AQUÍ AGREGAMOS LA CONTRASEÑA
+            // Renderizamos la fila
             tr.innerHTML = `
                 <td>${u.name}</td>
                 <td>${u.user}</td>
-                <td style="font-family: monospace; color: #555;">${u.pass}</td> <td><span class="${role === 'admin' ? 'role-admin' : ''}">${role.toUpperCase()}</span></td>
+                <td style="font-family: monospace; color: #555;">${u.pass}</td> 
+                <td><span class="${role === 'admin' ? 'role-admin' : ''}">${role.toUpperCase()}</span></td>
                 <td>
                     ${isValidated 
                         ? '<span class="status-ok">HABILITADO</span>' 
@@ -45,72 +42,139 @@ async function cargarTablaUsuarios() {
 
     } catch (error) {
         console.error(error);
-        tbody.innerHTML = '<tr><td colspan="6" style="color:red">Error al conectar con el servidor.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center">Error al conectar con la base de datos.</td></tr>';
     }
 }
 
-
-
-
+// --- RENDERIZADO DE BOTONES ---
 function renderButtons(index, isValidated, role) {
-    // No permitimos borrar ni bloquear al admin principal (protección simple)
-    if (role === 'admin') return '<span style="color:#999">Protegido</span>';
+    // Si es admin, mostramos texto de protegido (opcional, para no borrar al jefe por error)
+    if (role === 'admin') {
+         // Igual permitimos editar al admin, pero con cuidado. 
+         // Si quieres bloquear todo al admin, retorna solo el span.
+         return `<button class="action-btn btn-edit" title="Editar" onclick="abrirModal(${index})"><i class="fa-solid fa-pen"></i></button> 
+                 <span style="color:#999; font-size:0.8rem; margin-left:5px;">(Admin)</span>`;
+    }
 
     let html = '';
 
-    // Botón Validar / Revocar
+    // 1. Botón EDITAR (Amarillo)
+    html += `<button class="action-btn btn-edit" title="Editar" onclick="abrirModal(${index})"><i class="fa-solid fa-pen"></i></button>`;
+
+    // 2. Botón VALIDAR / BLOQUEAR
     if (!isValidated) {
-        html += `<button class="btn-action btn-approve" onclick="cambiarEstado(${index}, true)">Aprobar</button>`;
+        // Si no está validado -> Botón verde Check
+        html += `<button class="action-btn btn-approve" title="Aprobar acceso" onclick="cambiarEstado(${index}, true)"><i class="fa-solid fa-check"></i></button>`;
     } else {
-        html += `<button class="btn-action btn-revoke" onclick="cambiarEstado(${index}, false)">Bloquear</button>`;
+        // Si está validado -> Botón gris Bloquear
+        html += `<button class="action-btn btn-revoke" title="Revocar acceso" onclick="cambiarEstado(${index}, false)"><i class="fa-solid fa-ban"></i></button>`;
     }
 
-    // Botón Eliminar
-    html += `<button class="btn-action btn-delete" onclick="eliminarUsuario(${index})">Eliminar</button>`;
+    // 3. Botón ELIMINAR (Rojo)
+    html += `<button class="action-btn btn-delete" title="Eliminar usuario" onclick="eliminarUsuario(${index})"><i class="fa-solid fa-trash"></i></button>`;
 
     return html;
 }
 
-// Función para Aprobar o Bloquear
-window.cambiarEstado = async (index, nuevoEstado) => {
+// --- LÓGICA DEL MODAL (EDITAR) ---
+
+window.abrirModal = async (index) => {
     try {
         const users = await API.cargar('users');
-        
-        // Modificamos el estado
-        users[index].validated = nuevoEstado;
+        const user = users[index];
 
-        // Guardamos en servidor
-        await API.guardar('users', users);
-        
-        // Recargamos la tabla
-        await cargarTablaUsuarios();
-        alert(nuevoEstado ? 'Usuario aprobado.' : 'Usuario bloqueado.');
+        if (!user) return;
+
+        // Llenamos el formulario con los datos actuales
+        document.getElementById('editIndex').value = index;
+        document.getElementById('editName').value = user.name || '';
+        document.getElementById('editUser').value = user.user || '';
+        document.getElementById('editPass').value = user.pass || '';
+        document.getElementById('editRole').value = user.role || 'user';
+
+        // Mostramos el modal
+        document.getElementById('modalEditar').style.display = 'flex';
     } catch (e) {
-        alert('Error al guardar cambios');
+        console.error(e);
+        alert("Error al cargar datos para editar");
     }
 };
 
-// Función para Eliminar usuario permanentemente
-window.eliminarUsuario = async (index) => {
-    if(!confirm('¿Estás seguro de eliminar este usuario? No podrá recuperar sus datos.')) return;
+window.cerrarModal = () => {
+    document.getElementById('modalEditar').style.display = 'none';
+};
+
+window.guardarCambiosUsuario = async () => {
+    const index = document.getElementById('editIndex').value;
+    
+    const newName = document.getElementById('editName').value;
+    const newUser = document.getElementById('editUser').value;
+    const newPass = document.getElementById('editPass').value;
+    const newRole = document.getElementById('editRole').value;
+
+    if(!newName || !newUser || !newPass) {
+        alert("Todos los campos son obligatorios.");
+        return;
+    }
 
     try {
         const users = await API.cargar('users');
         
-        // Borramos del array
-        users.splice(index, 1);
+        // Actualizamos datos
+        users[index].name = newName;
+        users[index].user = newUser;
+        users[index].pass = newPass;
+        users[index].role = newRole;
 
         // Guardamos
         await API.guardar('users', users);
         
+        // Cerramos y refrescamos
+        cerrarModal();
+        await cargarTablaUsuarios();
+        alert("Usuario modificado con éxito.");
+    } catch (e) {
+        console.error(e);
+        alert("Error al guardar los cambios.");
+    }
+};
+
+// --- LÓGICA DE ESTADO Y ELIMINACIÓN ---
+
+window.cambiarEstado = async (index, nuevoEstado) => {
+    try {
+        const users = await API.cargar('users');
+        users[index].validated = nuevoEstado;
+        
+        await API.guardar('users', users);
+        await cargarTablaUsuarios();
+        
+        // Feedback visual rápido
+        // alert(nuevoEstado ? 'Usuario habilitado' : 'Usuario bloqueado');
+    } catch (e) {
+        console.error(e);
+        alert('Error al cambiar el estado');
+    }
+};
+
+window.eliminarUsuario = async (index) => {
+    if(!confirm('¿Estás seguro de eliminar este usuario permanentemente?')) return;
+
+    try {
+        const users = await API.cargar('users');
+        users.splice(index, 1); // Elimina 1 elemento en la posición index
+        
+        await API.guardar('users', users);
         await cargarTablaUsuarios();
     } catch (e) {
+        console.error(e);
         alert('Error al eliminar');
     }
 };
 
-// Logout (reutilizando lógica básica)
+// --- LOGOUT ---
 document.getElementById('btn-logout')?.addEventListener('click', () => {
-    localStorage.removeItem('hr_current_user'); // Asegúrate que coincida con tu LS_CURRENT
+    // Ajusta 'hr_current_user' según la clave que uses en auth.js
+    localStorage.removeItem('hr_current_user'); 
     window.location.href = 'login.html';
 });

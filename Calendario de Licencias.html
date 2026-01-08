@@ -70,9 +70,9 @@
     </div>
     <div class="topbar-right">
       <div id="userArea" class="user">—</div>
-      <a class="btn" href="index.html" style="text-decoration: none; color: inherit;">
-          <i class="fa-solid fa-arrow-left"></i> Volver
-      </a>
+      <button id="btn-logout" class="btn" title="Cerrar sesión">
+        <i class="fa-solid fa-right-from-bracket"></i> Salir
+      </button>
       </div>
   </header>
 
@@ -87,6 +87,8 @@
         <div class="panel form-panel">
           <h2><i class="fa-solid fa-calendar-plus"></i> Nueva Solicitud</h2>
           <p class="muted">Registrar vacaciones o licencias especiales.</p>
+          <p class="muted">En caso de licencias que no sean vacaciones, se requiere justificación.</p>
+          <p class="muted">En caso de que haya dias de vacaciones pendientes de anteriores años agregarlos como "otros" y agregar la justificación.</p>
           
           <form id="leaveForm">
             <label>Empleado</label>
